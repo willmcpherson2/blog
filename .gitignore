@@ -1,0 +1,8 @@
+*
+*/*
+
+!.gitignore
+!brittany.yaml
+!blog.cabal
+!src
+!src/**
