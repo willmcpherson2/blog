@@ -6,3 +6,5 @@
 !blog.cabal
 !src
 !src/**
+!content
+!content/**

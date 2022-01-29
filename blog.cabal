@@ -29,8 +29,12 @@ executable bin
   import: shared
   hs-source-dirs: src
   main-is: Main.hs
+  other-modules:
+    Parse
+    , Compile
   build-depends:
     base
+    , directory
     , bytestring
     , text
     , warp
