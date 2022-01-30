@@ -1,4 +1,4 @@
-import Compile (compile, compileTitle)
+import Compile (compile, compilePreview)
 import Control.Monad ((<=<))
 import Data.ByteString.Lazy (ByteString)
 import Data.ByteString.Lazy.Char8 (pack)
@@ -26,9 +26,9 @@ app request respond = do
 
 router :: Method -> Path -> IO (Status, Content)
 router method path = case (method, path) of
-  ("GET", []) -> index "content/posts"
-  ("GET", ["posts"]) -> index "content/posts"
-  ("GET", ["posts", title]) -> serveFilePath $ "content/posts/" ++ unpack title
+  ("GET", []) -> index "posts"
+  ("GET", ["posts"]) -> index "posts"
+  ("GET", ["posts", title]) -> serveFilePath $ "posts/" ++ unpack title
   ("GET", ["www", "style.css"]) -> serveRaw "www/style.css"
   _ -> notFound
 
@@ -47,7 +47,7 @@ index directory = do
       text <- readFile filePath
       let
         document = parse text
-        title = compileTitle document
+        title = compilePreview document filePath
       pure title
 
     directoryPaths :: FilePath -> IO [FilePath]
@@ -72,7 +72,7 @@ serveFilePath filePath = do
 
 notFound :: IO (Status, Content)
 notFound = do
-  html <- filePathToHtml "content/404"
+  html <- filePathToHtml "www/404"
   pure (status404, html)
 
 --------------------------------------------------------------------------------

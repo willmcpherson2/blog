@@ -6,7 +6,7 @@
 !blog.cabal
 !src
 !src/**
-!content
-!content/**
+!posts
+!posts/**
 !www
 !www/**

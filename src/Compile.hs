@@ -1,4 +1,4 @@
-module Compile (compile, compileTitle) where
+module Compile (compile, compilePreview) where
 
 import Data.Char (isSpace)
 import Parse (Document(..), Element(..), Part(..), Style(..))
@@ -6,8 +6,9 @@ import Parse (Document(..), Element(..), Part(..), Style(..))
 compile :: Document -> String
 compile (Document eles) = concatMap compileEle eles
 
-compileTitle :: Document -> String
-compileTitle (Document (ele : _)) = compileEle ele
+compilePreview :: Document -> String -> String
+compilePreview (Document (ele : _)) path =
+  "<a href='" ++ path ++ "'>" ++ compileEle ele ++ "</a>"
 
 compileEle :: Element -> String
 compileEle (Element style parts) = case style of
