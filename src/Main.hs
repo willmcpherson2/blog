@@ -47,8 +47,8 @@ router method path = case (method, path) of
           document = parse text
           html = header ++ compile document ++ footer
         pure (status200, pack html)
-      else pure (status404, response404)
-  _ -> pure (status404, response404)
+      else notFound
+  _ -> notFound
 
 getTitle :: FilePath -> IO String
 getTitle filePath = do
@@ -58,5 +58,12 @@ getTitle filePath = do
     title = compileTitle document
   pure title
 
-response404 :: Html
-response404 = "<h1>404</h1>"
+notFound :: IO (Status, ByteString)
+notFound = do
+  text <- readFile "content/404"
+  header <- readFile "www/header.html"
+  footer <- readFile "www/footer.html"
+  let
+    document = parse text
+    html = header ++ compile document ++ footer
+  pure (status404, pack html)
