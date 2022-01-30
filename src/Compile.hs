@@ -1,10 +1,13 @@
-module Compile (compile) where
+module Compile (compile, compileTitle) where
 
 import Data.Char (isSpace)
 import Parse (Document(..), Element(..), Part(..), Style(..))
 
 compile :: Document -> String
 compile (Document eles) = concatMap compileEle eles
+
+compileTitle :: Document -> String
+compileTitle (Document (ele : _)) = compileEle ele
 
 compileEle :: Element -> String
 compileEle (Element style parts) = case style of
