@@ -85,9 +85,11 @@ textToHtml = wrap . compile . parse
 
 wrap :: String -> IO Content
 wrap document = do
-  header <- readFile "www/header.html"
-  footer <- readFile "www/footer.html"
+  htmlHeader <- readFile "www/header.html"
+  header <- compile . parse <$> readFile "www/header"
+  footer <- compile . parse <$> readFile "www/footer"
+  htmlFooter <- readFile "www/footer.html"
   let
-    wrapped = header ++ document ++ footer
+    wrapped = htmlHeader ++ header ++ document ++ footer ++ htmlFooter
     html = pack wrapped
   pure html
