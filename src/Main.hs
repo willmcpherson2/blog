@@ -1,4 +1,5 @@
 import Compile (compile, compileTitle)
+import Control.Monad ((<=<))
 import Data.ByteString.Lazy (ByteString)
 import Data.ByteString.Lazy.Char8 (pack)
 import Data.Text (Text, unpack)
@@ -8,7 +9,7 @@ import Network.Wai.Handler.Warp (run)
 import Parse (parse)
 import System.Directory (doesFileExist, listDirectory)
 
-type Html = ByteString
+type Content = ByteString
 
 type Path = [Text]
 
@@ -23,47 +24,70 @@ app request respond = do
   (status, response) <- router method path
   respond $ responseLBS status [("Content-Type", "text/html")] response
 
-router :: Method -> Path -> IO (Status, Html)
+router :: Method -> Path -> IO (Status, Content)
 router method path = case (method, path) of
-  ("GET", []) -> do
-    filePaths <- listDirectory "content/posts"
-    titles <- mapM getTitle filePaths
-    header <- readFile "www/header.html"
-    footer <- readFile "www/footer.html"
-    let html = header ++ concat titles ++ footer
-    pure (status200, pack html)
-  ("GET", ["www", "style.css"]) -> do
-    css <- readFile "www/style.css"
-    pure (status200, pack css)
-  ("GET", ["posts", title]) -> do
-    let filePath = "content/posts/" ++ unpack title
-    exists <- doesFileExist filePath
-    if exists
-      then do
-        text <- readFile filePath
-        header <- readFile "www/header.html"
-        footer <- readFile "www/footer.html"
-        let
-          document = parse text
-          html = header ++ compile document ++ footer
-        pure (status200, pack html)
-      else notFound
+  ("GET", []) -> index "content/posts"
+  ("GET", ["posts"]) -> index "content/posts"
+  ("GET", ["posts", title]) -> serveFilePath $ "content/posts/" ++ unpack title
+  ("GET", ["www", "style.css"]) -> serveRaw "www/style.css"
   _ -> notFound
 
-getTitle :: FilePath -> IO String
-getTitle filePath = do
-  text <- readFile $ "content/posts/" ++ filePath
-  let
-    document = parse text
-    title = compileTitle document
-  pure title
+--------------------------------------------------------------------------------
 
-notFound :: IO (Status, ByteString)
+index :: FilePath -> IO (Status, Content)
+index directory = do
+  filePaths <- directoryPaths directory
+  titles <- mapM getTitle filePaths
+  let document = concat titles
+  html <- wrap document
+  pure (status200, html)
+  where
+    getTitle :: FilePath -> IO String
+    getTitle filePath = do
+      text <- readFile filePath
+      let
+        document = parse text
+        title = compileTitle document
+      pure title
+
+    directoryPaths :: FilePath -> IO [FilePath]
+    directoryPaths filePath = do
+      filePaths <- listDirectory filePath
+      let filePaths' = map (\filename -> filePath ++ "/" ++ filename) filePaths
+      pure filePaths'
+
+serveRaw :: FilePath -> IO (Status, Content)
+serveRaw filePath = do
+  content <- readFile filePath
+  pure (status200, pack content)
+
+serveFilePath :: FilePath -> IO (Status, Content)
+serveFilePath filePath = do
+  exists <- doesFileExist filePath
+  if exists
+    then do
+      html <- filePathToHtml filePath
+      pure (status200, html)
+    else notFound
+
+notFound :: IO (Status, Content)
 notFound = do
-  text <- readFile "content/404"
+  html <- filePathToHtml "content/404"
+  pure (status404, html)
+
+--------------------------------------------------------------------------------
+
+filePathToHtml :: FilePath -> IO Content
+filePathToHtml = textToHtml <=< readFile
+
+textToHtml :: String -> IO Content
+textToHtml = wrap . compile . parse
+
+wrap :: String -> IO Content
+wrap document = do
   header <- readFile "www/header.html"
   footer <- readFile "www/footer.html"
   let
-    document = parse text
-    html = header ++ compile document ++ footer
-  pure (status404, pack html)
+    wrapped = header ++ document ++ footer
+    html = pack wrapped
+  pure html
