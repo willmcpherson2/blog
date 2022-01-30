@@ -15,7 +15,8 @@ data Part
   deriving Show
 
 data Style
-  = Title
+  = Rule
+  | Title
   | Heading
   | Subheading
   | CodeBlock
@@ -48,7 +49,8 @@ parseEle source = asum $ map ($ source) elementParsers
 
 blockParsers :: [ParseMaybe]
 blockParsers =
-  [ mkParser Title "# " "\n"
+  [ mkParser Rule "---" "\n"
+  , mkParser Title "# " "\n"
   , mkParser Heading "## " "\n"
   , mkParser Subheading "### " "\n"
   , mkParser CodeBlock "``\n" "\n``\n"
