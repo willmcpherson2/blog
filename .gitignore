@@ -8,3 +8,5 @@
 !src/**
 !content
 !content/**
+!www
+!www/**

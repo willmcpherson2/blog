@@ -26,16 +26,21 @@ app request respond = do
 router :: Method -> Path -> IO (Status, Html)
 router method path = case (method, path) of
   ("GET", []) -> pure (status200, index)
+  ("GET", ["www", "style.css"]) -> do
+    css <- readFile "www/style.css"
+    pure (status200, pack css)
   ("GET", ["posts", title]) -> do
     let path = "content/posts/" ++ unpack title
     exists <- doesFileExist path
     if exists
       then do
         text <- readFile path
+        header <- readFile "www/header.html"
+        footer <- readFile "www/footer.html"
         let
           document = parse text
-          html = pack $ compile document
-        pure (status200, html)
+          html = header ++ compile document ++ footer
+        pure (status200, pack html)
       else pure (status404, response404)
   _ -> pure (status404, response404)
 

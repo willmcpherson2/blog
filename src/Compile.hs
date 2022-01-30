@@ -18,11 +18,7 @@ compileEle (Element style parts) = case style of
   Link ->
     let (caption, link) = splitAtLink parts
     in
-      "<a href=\""
-      ++ compileParts link
-      ++ "\">"
-      ++ compileParts caption
-      ++ "</a>"
+      "<a href='" ++ compileParts link ++ "'>" ++ compileParts caption ++ "</a>"
   Paragraph -> "<p>" ++ compileParts parts ++ "</p>"
 
 splitAtLink :: [Part] -> ([Part], [Part])
