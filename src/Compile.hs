@@ -12,7 +12,7 @@ compilePreview (Document (ele : _)) path =
 
 compileEle :: Element -> String
 compileEle (Element style parts) = case style of
-  Rule -> "<hr>"
+  Rule -> "<br><hr><br>"
   Title -> "<h1>" ++ compileParts parts ++ "</h1>"
   Heading -> "<h2>" ++ compileParts parts ++ "</h2>"
   Subheading -> "<h3>" ++ compileParts parts ++ "</h3>"
