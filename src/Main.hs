@@ -5,16 +5,22 @@ import Data.ByteString.Lazy.Char8 (pack)
 import Data.Text (Text, unpack)
 import Network.HTTP.Types (Method, Status, status200, status404)
 import Network.Wai (Application, Request(pathInfo, requestMethod), responseLBS)
-import Network.Wai.Handler.Warp (run)
+import Network.Wai.Handler.Warp (Port, run)
 import Parse (parse)
 import System.Directory (doesFileExist, listDirectory)
+import System.Environment (lookupEnv)
 
 type Content = ByteString
 
 type Path = [Text]
 
 main :: IO ()
-main = run 8080 app
+main = do
+  port <- getPort
+  run port app
+
+getPort :: IO Port
+getPort = maybe 8080 read <$> lookupEnv "PORT"
 
 app :: Application
 app request respond = do
