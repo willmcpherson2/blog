@@ -35,7 +35,7 @@ splitAtLink parts =
   let
     partIsSpace (CharPart char) = isSpace char
     (link, caption) = break partIsSpace $ reverse parts
-  in (reverse caption, reverse link)
+  in (reverse $ tail caption, reverse link)
 
 compileParts :: [Part] -> String
 compileParts = concatMap compilePart
