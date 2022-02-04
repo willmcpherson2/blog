@@ -16,10 +16,14 @@ compileEle (Element style parts) = case style of
   Title -> "<h1>" ++ compileParts parts ++ "</h1>"
   Heading -> "<h2>" ++ compileParts parts ++ "</h2>"
   Subheading -> "<h3>" ++ compileParts parts ++ "</h3>"
-  CodeBlock -> "<code><pre>" ++ compileParts parts ++ "</pre></code>"
+  CodeBlock ->
+    "<div class='code-block'><code><pre>"
+      ++ compileParts parts
+      ++ "</pre></code></div>"
   Bold -> "<b>" ++ compileParts parts ++ "</b>"
   Italics -> "<i>" ++ compileParts parts ++ "</i>"
-  CodeInline -> "<code>" ++ compileParts parts ++ "</code>"
+  CodeInline ->
+    "<span class='code-inline'><code>" ++ compileParts parts ++ "</code></span>"
   Link ->
     let (caption, link) = splitAtLink parts
     in
