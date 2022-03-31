@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 import Compile (compile, compilePreview)
 import Control.Monad ((<=<))
 import Data.ByteString.Lazy (ByteString)
