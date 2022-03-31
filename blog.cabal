@@ -21,7 +21,7 @@ common shared
     -Wno-all-missed-specialisations
     -Wno-monomorphism-restriction
 
-executable bin
+executable blog
   import: shared
   hs-source-dirs: src
   main-is: Main.hs

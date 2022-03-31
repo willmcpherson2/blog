@@ -7,4 +7,4 @@ RUN cabal build --only-dependencies -j4
 COPY . /opt/blog
 RUN cabal install
 
-CMD ["bin"]
+CMD ["blog"]
