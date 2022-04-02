@@ -6,7 +6,7 @@ import Data.ByteString.Lazy (ByteString)
 import Data.ByteString.Lazy.Char8 (pack)
 import Data.Text (Text, unpack)
 import Network.HTTP.Types (Method, Status, status200, status404)
-import Network.Wai (Application, Request(pathInfo, requestMethod), responseLBS)
+import Network.Wai (Application, Request (pathInfo, requestMethod), responseLBS)
 import Network.Wai.Handler.Warp (Port, run)
 import Parse (parse)
 import System.Directory (doesFileExist, listDirectory)
@@ -26,9 +26,8 @@ getPort = maybe 8080 read <$> lookupEnv "PORT"
 
 app :: Application
 app request respond = do
-  let
-    method = requestMethod request
-    path = pathInfo request
+  let method = requestMethod request
+      path = pathInfo request
   (status, response) <- router method path
   respond $ responseLBS status [("Content-Type", "text/html")] response
 
@@ -53,9 +52,8 @@ index directory = do
     getTitle :: FilePath -> IO String
     getTitle filePath = do
       text <- readFile filePath
-      let
-        document = parse text
-        title = compilePreview document filePath
+      let document = parse text
+          title = compilePreview document filePath
       pure title
 
     directoryPaths :: FilePath -> IO [FilePath]
@@ -97,7 +95,6 @@ wrap document = do
   header <- compile . parse <$> readFile "www/header"
   footer <- compile . parse <$> readFile "www/footer"
   htmlFooter <- readFile "www/footer.html"
-  let
-    wrapped = htmlHeader ++ header ++ document ++ footer ++ htmlFooter
-    html = pack wrapped
+  let wrapped = htmlHeader ++ header ++ document ++ footer ++ htmlFooter
+      html = pack wrapped
   pure html
