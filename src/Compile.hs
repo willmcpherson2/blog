@@ -1,44 +1,51 @@
 module Compile (compile, compilePreview) where
 
-import Data.Char (isSpace)
-import Parse (Document (..), Element (..), Part (..), Style (..))
+import Data.List.NonEmpty (toList)
+import GHC.Base
+import Parse
 
 compile :: Document -> String
-compile (Document eles) = concatMap compileEle eles
+compile Document{date, title, blocks} =
+  compileDate date
+    ++ compileTitle title
+    ++ compileBlocks blocks
 
-compilePreview :: Document -> String -> String
-compilePreview (Document (ele : _)) path =
-  "<a href='" ++ path ++ "'>" ++ compileEle ele ++ "</a>"
+compilePreview :: String -> Title -> String
+compilePreview path title =
+  "<a href='" ++ path ++ "'>" ++ compileTitle title ++ "</a>"
 
-compileEle :: Element -> String
-compileEle (Element style parts) = case style of
-  Rule -> "<br><hr><br>"
-  Title -> "<h1>" ++ compileParts parts ++ "</h1>"
-  Heading -> "<h2>" ++ compileParts parts ++ "</h2>"
-  Subheading -> "<h3>" ++ compileParts parts ++ "</h3>"
-  CodeBlock ->
+compileDate :: Date -> String
+compileDate = show
+
+compileTitle :: Title -> String
+compileTitle = \case
+  Title s -> "<h1>" ++ toList s ++ "</h1>"
+  TitleError e -> show e
+
+compileBlocks :: [Block] -> String
+compileBlocks = concatMap compileBlock
+
+compileBlock :: Block -> String
+compileBlock = \case
+  Heading s -> "<h2>" ++ toList s ++ "</h2>"
+  Subheading s -> "<h3>" ++ toList s ++ "</h3>"
+  Code s ->
     "<div class='code-block'><code><pre>"
-      ++ compileParts parts
+      ++ toList s
       ++ "</pre></code></div>"
-  Bold -> "<b>" ++ compileParts parts ++ "</b>"
-  Italics -> "<i>" ++ compileParts parts ++ "</i>"
-  CodeInline ->
-    "<span class='code-inline'><code>" ++ compileParts parts ++ "</code></span>"
-  Link ->
-    let (caption, link) = splitAtLink parts
-     in "<a href='" ++ compileParts link ++ "'>" ++ compileParts caption ++ "</a>"
-  Paragraph -> "<p>" ++ compileParts parts ++ "</p>"
+  Paragraph eles -> "<p>" ++ compileEles eles ++ "</p>"
+  BlockError e -> show e
 
-splitAtLink :: [Part] -> ([Part], [Part])
-splitAtLink parts =
-  let partIsSpace (CharPart char) = isSpace char
-      (link, caption) = break partIsSpace $ reverse parts
-   in (reverse $ tail caption, reverse link)
+compileEles :: NonEmpty Element -> [Char]
+compileEles = concatMap compileEle
 
-compileParts :: [Part] -> String
-compileParts = concatMap compilePart
-
-compilePart :: Part -> String
-compilePart part = case part of
-  CharPart char -> [char]
-  ElementPart ele -> compileEle ele
+compileEle :: Element -> [Char]
+compileEle = \case
+  Bold eles -> "<b>" ++ compileEles eles ++ "</b>"
+  Italics eles -> "<i>" ++ compileEles eles ++ "</i>"
+  Link caption link ->
+    "<a href='" ++ toList link ++ "'>" ++ compileEles caption ++ "</a>"
+  InlineCode s ->
+    "<span class='code-inline'><code>" ++ toList s ++ "</code></span>"
+  Plain s -> toList s
+  ElementError e -> show e

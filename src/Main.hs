@@ -8,7 +8,7 @@ import Data.Text (Text, unpack)
 import Network.HTTP.Types (Method, Status, status200, status404)
 import Network.Wai (Application, Request (pathInfo, requestMethod), responseLBS)
 import Network.Wai.Handler.Warp (Port, run)
-import Parse (parse)
+import Parse (Document (Document, title), parse)
 import System.Directory (doesFileExist, listDirectory)
 import System.Environment (lookupEnv)
 
@@ -52,9 +52,8 @@ index directory = do
     getTitle :: FilePath -> IO String
     getTitle filePath = do
       text <- readFile filePath
-      let document = parse text
-          title = compilePreview document filePath
-      pure title
+      let Document{title} = parse text
+      pure $ compilePreview filePath title
 
     directoryPaths :: FilePath -> IO [FilePath]
     directoryPaths filePath = do
@@ -78,7 +77,7 @@ serveFilePath filePath = do
 
 notFound :: IO (Status, Content)
 notFound = do
-  html <- filePathToHtml "www/404"
+  html <- pack <$> readFile "www/404.html"
   pure (status404, html)
 
 --------------------------------------------------------------------------------
@@ -91,10 +90,7 @@ textToHtml = wrap . compile . parse
 
 wrap :: String -> IO Content
 wrap document = do
-  htmlHeader <- readFile "www/header.html"
-  header <- compile . parse <$> readFile "www/header"
-  footer <- compile . parse <$> readFile "www/footer"
-  htmlFooter <- readFile "www/footer.html"
-  let wrapped = htmlHeader ++ header ++ document ++ footer ++ htmlFooter
+  header <- readFile "www/header.html"
+  let wrapped = header ++ document
       html = pack wrapped
   pure html

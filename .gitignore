@@ -6,6 +6,7 @@
 !heroku.yml
 !fourmolu.yaml
 !blog.cabal
+!cabal.project
 !src
 !src/**
 !posts

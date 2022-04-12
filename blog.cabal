@@ -36,3 +36,6 @@ executable blog
     , warp
     , wai
     , http-types
+    , time
+    , parss
+    , transformers
