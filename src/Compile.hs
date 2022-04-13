@@ -1,6 +1,7 @@
 module Compile (compile, compilePreview) where
 
 import Data.List.NonEmpty (toList)
+import Data.Time (defaultTimeLocale, formatTime)
 import GHC.Base
 import Parse
 
@@ -15,7 +16,9 @@ compilePreview path title =
   "<a href='" <> path <> "'>" <> compileTitle title <> "</a>"
 
 compileDate :: Date -> String
-compileDate = show
+compileDate = \case
+  Date d -> formatTime defaultTimeLocale "%e %b %Y" d
+  DateError e -> compileError e
 
 compileTitle :: Title -> String
 compileTitle = \case
