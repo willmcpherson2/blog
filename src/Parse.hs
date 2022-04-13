@@ -29,17 +29,25 @@ data Document = Document
   , title :: Title
   , blocks :: [Block]
   }
-  deriving (Show)
+  deriving (Show, Eq)
+
+instance Ord Document where
+  compare x y = compare (date x) (date y)
 
 data Date
   = Date Day
   | DateError Error
-  deriving (Show)
+  deriving (Show, Eq)
+
+instance Ord Date where
+  compare x y = case (x, y) of
+    (Date x, Date y) -> compare x y
+    _ -> EQ
 
 data Title
   = Title (NonEmpty Char)
   | TitleError Error
-  deriving (Show)
+  deriving (Show, Eq)
 
 data Block
   = Heading (NonEmpty Char)
@@ -47,7 +55,7 @@ data Block
   | Code (NonEmpty Char)
   | Paragraph (NonEmpty Element)
   | BlockError Error
-  deriving (Show)
+  deriving (Show, Eq)
 
 data Element
   = Bold (NonEmpty Element)
@@ -56,7 +64,7 @@ data Element
   | InlineCode (NonEmpty Char)
   | Plain (NonEmpty Char)
   | ElementError Error
-  deriving (Show)
+  deriving (Show, Eq)
 
 data Error
   = InvalidDay
@@ -79,7 +87,7 @@ data Error
   | UnclosedLink
   | UnclosedInlineCode
   | ExpectedLink
-  deriving (Show)
+  deriving (Show, Eq)
 
 parse :: String -> Document
 parse = P.parse parseDocument

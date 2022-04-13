@@ -5,6 +5,7 @@ import Data.ByteString qualified as BS
 import Data.ByteString.Lazy (ByteString)
 import Data.ByteString.Lazy qualified as LBS
 import Data.ByteString.Lazy.UTF8 (fromString)
+import Data.List (sortOn)
 import Data.Text (unpack)
 import Network.HTTP.Types (Method, Status, hContentType, status200, status404)
 import Network.Wai (Application, Request (pathInfo, requestMethod), responseLBS)
@@ -53,14 +54,17 @@ serveIndex :: FilePath -> IO Response
 serveIndex dirname = do
   filenames <- listDirectory dirname
   let paths = map (\filename -> dirname <> "/" <> filename) filenames
-  content <- fromString <$> concat <$> mapM getPreview paths
+  previews <- reverse . sortOn fst <$> mapM getPreview paths
+  let content = fromString $ concat $ map snd previews
   content' <- wrap content
   pure $ Response status200 textHtml content'
   where
-    getPreview :: FilePath -> IO String
+    getPreview :: FilePath -> IO (Document, String)
     getPreview path = do
       content <- readFile path
-      pure $ compilePreview path (title $ parse $ content)
+      let document = parse content
+          preview = compilePreview path (title document)
+      pure (document, preview)
 
 servePost :: FilePath -> IO Response
 servePost filename = do
