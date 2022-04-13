@@ -20,7 +20,7 @@ compileDate = show
 compileTitle :: Title -> String
 compileTitle = \case
   Title s -> "<h1>" ++ toList s ++ "</h1>"
-  TitleError e -> show e
+  TitleError e -> compileError e
 
 compileBlocks :: [Block] -> String
 compileBlocks = concatMap compileBlock
@@ -34,7 +34,7 @@ compileBlock = \case
       ++ toList s
       ++ "</pre></code></div>"
   Paragraph eles -> "<p>" ++ compileEles eles ++ "</p>"
-  BlockError e -> show e
+  BlockError e -> compileError e
 
 compileEles :: NonEmpty Element -> [Char]
 compileEles = concatMap compileEle
@@ -48,4 +48,7 @@ compileEle = \case
   InlineCode s ->
     "<span class='code-inline'><code>" ++ toList s ++ "</code></span>"
   Plain s -> toList s
-  ElementError e -> show e
+  ElementError e -> compileError e
+
+compileError :: Error -> String
+compileError e = "<span class='error'><code>" ++ show e ++ "</code></span>"

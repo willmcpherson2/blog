@@ -34,3 +34,7 @@ code {
   padding-top: 1px;
   padding-bottom: 1px;
 }
+
+.error {
+  background-color: #ff0000;
+}
