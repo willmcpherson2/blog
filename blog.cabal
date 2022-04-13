@@ -33,6 +33,7 @@ executable blog
     , directory
     , bytestring
     , text
+    , utf8-string
     , warp
     , wai
     , http-types

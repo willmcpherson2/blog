@@ -1,20 +1,27 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 import Compile (compile, compilePreview)
-import Control.Monad ((<=<))
+import Data.ByteString qualified as BS
 import Data.ByteString.Lazy (ByteString)
-import Data.ByteString.Lazy.Char8 (pack)
-import Data.Text (Text, unpack)
-import Network.HTTP.Types (Method, Status, status200, status404)
+import Data.ByteString.Lazy qualified as LBS
+import Data.ByteString.Lazy.UTF8 (fromString)
+import Data.Text (unpack)
+import Network.HTTP.Types (Method, Status, hContentType, status200, status404)
 import Network.Wai (Application, Request (pathInfo, requestMethod), responseLBS)
 import Network.Wai.Handler.Warp (Port, run)
-import Parse (Document (Document, title), parse)
+import Parse (Document (title), parse)
 import System.Directory (doesFileExist, listDirectory)
 import System.Environment (lookupEnv)
 
+type ContentType = BS.ByteString
+
 type Content = ByteString
 
-type Path = [Text]
+data Response = Response
+  { status :: Status
+  , contentType :: ContentType
+  , content :: Content
+  }
 
 main :: IO ()
 main = do
@@ -22,75 +29,96 @@ main = do
   run port app
 
 getPort :: IO Port
-getPort = maybe 8080 read <$> lookupEnv "PORT"
+getPort = maybe port read <$> lookupEnv portVar
 
 app :: Application
 app request respond = do
   let method = requestMethod request
-      path = pathInfo request
-  (status, response) <- router method path
-  respond $ responseLBS status [("Content-Type", "text/html")] response
+      path = map unpack (pathInfo request)
+  Response{status, contentType, content} <- router method path
+  respond $ responseLBS status [(hContentType, contentType)] content
 
-router :: Method -> Path -> IO (Status, Content)
+router :: Method -> [String] -> IO Response
 router method path = case (method, path) of
-  ("GET", []) -> index "posts"
-  ("GET", ["posts"]) -> index "posts"
-  ("GET", ["posts", title]) -> serveFilePath $ "posts/" ++ unpack title
-  ("GET", ["www", "style.css"]) -> serveRaw "www/style.css"
-  _ -> notFound
+  ("GET", []) -> serveIndex postsPath
+  ("GET", ["posts"]) -> serveIndex postsPath
+  ("GET", ["posts", title]) -> servePost title
+  ("GET", ["www", "style.css"]) -> serveStyle
+  _ -> serveNotFound
 
 --------------------------------------------------------------------------------
 
-index :: FilePath -> IO (Status, Content)
-index directory = do
-  filePaths <- directoryPaths directory
-  titles <- mapM getTitle filePaths
-  let document = concat titles
-  html <- wrap document
-  pure (status200, html)
+serveIndex :: FilePath -> IO Response
+serveIndex dirname = do
+  filenames <- listDirectory dirname
+  let paths = map (\filename -> dirname <> "/" <> filename) filenames
+  content <- fromString <$> concat <$> mapM getPreview paths
+  content' <- wrap content
+  pure $ Response status200 textHtml content'
   where
-    getTitle :: FilePath -> IO String
-    getTitle filePath = do
-      text <- readFile filePath
-      let Document{title} = parse text
-      pure $ compilePreview filePath title
+    getPreview :: FilePath -> IO String
+    getPreview path = do
+      content <- readFile path
+      pure $ compilePreview path (title $ parse $ content)
 
-    directoryPaths :: FilePath -> IO [FilePath]
-    directoryPaths filePath = do
-      filePaths <- listDirectory filePath
-      let filePaths' = map (\filename -> filePath ++ "/" ++ filename) filePaths
-      pure filePaths'
-
-serveRaw :: FilePath -> IO (Status, Content)
-serveRaw filePath = do
-  content <- readFile filePath
-  pure (status200, pack content)
-
-serveFilePath :: FilePath -> IO (Status, Content)
-serveFilePath filePath = do
-  exists <- doesFileExist filePath
-  if exists
+servePost :: FilePath -> IO Response
+servePost filename = do
+  fileExists <- doesFileExist $ postsPath <> "/" <> filename
+  if fileExists
     then do
-      html <- filePathToHtml filePath
-      pure (status200, html)
-    else notFound
+      content <- readFile $ postsPath <> "/" <> filename
+      let content' = fromString $ compile $ parse $ content
+      content'' <- wrap content'
+      pure $ Response status200 textHtml content''
+    else serveNotFound
 
-notFound :: IO (Status, Content)
-notFound = do
-  html <- pack <$> readFile "www/404.html"
-  pure (status404, html)
+serveStyle :: IO Response
+serveStyle = do
+  content <- LBS.readFile stylePath
+  pure $ Response status200 textCss content
+
+serveNotFound :: IO Response
+serveNotFound = do
+  content <- LBS.readFile notFoundPath
+  content' <- wrap content
+  pure $ Response status404 textHtml content'
 
 --------------------------------------------------------------------------------
 
-filePathToHtml :: FilePath -> IO Content
-filePathToHtml = textToHtml <=< readFile
+wrap :: Content -> IO Content
+wrap content = do
+  header <- LBS.readFile headerPath
+  footer <- LBS.readFile footerPath
+  pure $ header <> content <> footer
 
-textToHtml :: String -> IO Content
-textToHtml = wrap . compile . parse
+--------------------------------------------------------------------------------
 
-wrap :: String -> IO Content
-wrap document = do
-  header <- readFile "www/header.html"
-  let wrapped = header ++ document
-      html = pack wrapped
-  pure html
+port :: Port
+port = 8080
+
+portVar :: String
+portVar = "PORT"
+
+textHtml :: ContentType
+textHtml = "text/html"
+
+textCss :: ContentType
+textCss = "text/css"
+
+stylePath :: FilePath
+stylePath = wwwPath <> "/style.css"
+
+notFoundPath :: FilePath
+notFoundPath = wwwPath <> "/not-found.html"
+
+headerPath :: FilePath
+headerPath = wwwPath <> "/header.html"
+
+footerPath :: FilePath
+footerPath = wwwPath <> "/footer.html"
+
+postsPath :: FilePath
+postsPath = "posts"
+
+wwwPath :: FilePath
+wwwPath = "www"
