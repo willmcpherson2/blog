@@ -1,3 +1,13 @@
+:root {
+  --black: #000;
+  --dark: #222;
+  --mid: #444;
+  --light: #eee;
+  --white: #fff;
+
+  --error: #f00;
+}
+
 body {
   font-family: sans-serif;
 }
@@ -6,6 +16,13 @@ body {
   body {
     margin: auto;
     width: 80ch;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: var(--dark);
+    color: var(--white);
   }
 }
 
@@ -19,17 +36,29 @@ code {
 }
 
 .code-block {
-  background-color: #eeeeee;
+  background-color: var(--light);
   padding: 8px;
   overflow: scroll;
 }
 
+@media (prefers-color-scheme: dark) {
+  .code-block {
+    background-color: var(--mid);
+  }
+}
+
 .code-inline {
-  background-color: #eeeeee;
+  background-color: var(--light);
   padding-left: 4px;
   padding-right: 4px;
 }
 
+@media (prefers-color-scheme: dark) {
+  .code-inline {
+    background-color: var(--mid);
+  }
+}
+
 .error {
-  background-color: #ff0000;
+  background-color: var(--error);
 }
