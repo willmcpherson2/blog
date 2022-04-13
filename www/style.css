@@ -1,15 +1,17 @@
 body {
   font-family: sans-serif;
-  margin: auto;
-  width: 40%;
-  padding: 2%;
-  line-height: 150%;
+}
+
+@media (min-width: 100ch) {
+  body {
+    margin: auto;
+    width: 80ch;
+  }
 }
 
 pre {
   padding: 0;
   margin: 0;
-  white-space: pre-wrap;
 }
 
 code {
@@ -18,21 +20,14 @@ code {
 
 .code-block {
   background-color: #eeeeee;
-  margin: 0;
-  border-radius: 6px;
-
   padding: 8px;
+  overflow: scroll;
 }
 
 .code-inline {
   background-color: #eeeeee;
-  margin: 0;
-  border-radius: 6px;
-
   padding-left: 4px;
   padding-right: 4px;
-  padding-top: 1px;
-  padding-bottom: 1px;
 }
 
 .error {
