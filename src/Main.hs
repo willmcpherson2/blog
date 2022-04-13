@@ -26,6 +26,7 @@ data Response = Response
 main :: IO ()
 main = do
   port <- getPort
+  putStrLn $ "running on port " <> show port
   run port app
 
 getPort :: IO Port
