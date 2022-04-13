@@ -36,10 +36,10 @@ compileBlock = \case
   Paragraph eles -> "<p>" ++ compileEles eles ++ "</p>"
   BlockError e -> compileError e
 
-compileEles :: NonEmpty Element -> [Char]
+compileEles :: NonEmpty Element -> String
 compileEles = concatMap compileEle
 
-compileEle :: Element -> [Char]
+compileEle :: Element -> String
 compileEle = \case
   Bold eles -> "<b>" ++ compileEles eles ++ "</b>"
   Italics eles -> "<i>" ++ compileEles eles ++ "</i>"
