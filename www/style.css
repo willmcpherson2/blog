@@ -62,3 +62,17 @@ code {
 .error {
   background-color: var(--error);
 }
+
+.source {
+  background-color: var(--light);
+  width: 100%;
+  font-family: monospace;
+  font-size: 120%;
+}
+
+@media (prefers-color-scheme: dark) {
+  .source {
+    background-color: var(--mid);
+    color: var(--white);
+  }
+}

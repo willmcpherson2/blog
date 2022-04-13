@@ -40,3 +40,4 @@ executable blog
     , time
     , parss
     , transformers
+    , tulip

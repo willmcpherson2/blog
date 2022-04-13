@@ -1,0 +1,27 @@
+<textarea class="source" id="source"></textarea>
+
+<input type="button" onclick="sendCode()" value="Run">
+
+<div class="code-block">
+  <code>
+    <pre id="output"></pre>
+  </code>
+</div>
+
+<script>
+  async function sendCode() {
+    const source = document.getElementById("source").value;
+    const request = {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain",
+        "Accept": "text/plain",
+      },
+      body: source,
+    };
+
+    const response = await fetch("/tulip", request);
+    const result = await response.text();
+    document.getElementById("output").innerHTML = result;
+  }
+</script>

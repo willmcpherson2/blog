@@ -4,15 +4,16 @@ import Compile (compile, compilePreview)
 import Data.ByteString qualified as BS
 import Data.ByteString.Lazy (ByteString)
 import Data.ByteString.Lazy qualified as LBS
-import Data.ByteString.Lazy.UTF8 (fromString)
+import Data.ByteString.Lazy.UTF8 (fromString, toString)
 import Data.List (sortOn)
 import Data.Text (unpack)
 import Network.HTTP.Types (Method, Status, hContentType, status200, status404)
-import Network.Wai (Application, Request (pathInfo, requestMethod), responseLBS)
+import Network.Wai (Application, Request (pathInfo, requestMethod), lazyRequestBody, responseLBS)
 import Network.Wai.Handler.Warp (Port, run)
 import Parse (Document (title), parse)
 import System.Directory (doesFileExist, listDirectory)
 import System.Environment (lookupEnv)
+import Tulip
 
 type ContentType = BS.ByteString
 
@@ -37,14 +38,17 @@ app :: Application
 app request respond = do
   let method = requestMethod request
       path = map unpack (pathInfo request)
-  Response{status, contentType, content} <- router method path
+  body <- lazyRequestBody request
+  Response{status, contentType, content} <- router method path body
   respond $ responseLBS status [(hContentType, contentType)] content
 
-router :: Method -> [String] -> IO Response
-router method path = case (method, path) of
+router :: Method -> [String] -> ByteString -> IO Response
+router method path body = case (method, path) of
   ("GET", []) -> serveIndex postsPath
   ("GET", ["posts"]) -> serveIndex postsPath
   ("GET", ["posts", title]) -> servePost title
+  ("GET", ["tulip"]) -> serveTulip
+  ("POST", ["tulip"]) -> postTulip body
   ("GET", ["www", "style.css"]) -> serveStyle
   _ -> serveNotFound
 
@@ -77,6 +81,17 @@ servePost filename = do
       pure $ Response status200 textHtml content''
     else serveNotFound
 
+serveTulip :: IO Response
+serveTulip = do
+  content <- LBS.readFile tulipPath
+  content' <- wrap content
+  pure $ Response status200 textHtml content'
+
+postTulip :: ByteString -> IO Response
+postTulip body = do
+  let result = getResult $ toString body
+  pure $ Response status200 textPlain (fromString result)
+
 serveStyle :: IO Response
 serveStyle = do
   content <- LBS.readFile stylePath
@@ -107,6 +122,9 @@ portVar = "PORT"
 textHtml :: ContentType
 textHtml = "text/html"
 
+textPlain :: ContentType
+textPlain = "text/plain"
+
 textCss :: ContentType
 textCss = "text/css"
 
@@ -121,6 +139,9 @@ headerPath = wwwPath <> "/header.html"
 
 footerPath :: FilePath
 footerPath = wwwPath <> "/footer.html"
+
+tulipPath :: FilePath
+tulipPath = wwwPath <> "/tulip.html"
 
 postsPath :: FilePath
 postsPath = "posts"
