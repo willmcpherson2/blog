@@ -6,6 +6,7 @@ import Data.ByteString.Lazy (ByteString)
 import Data.ByteString.Lazy qualified as LBS
 import Data.ByteString.Lazy.UTF8 (fromString, toString)
 import Data.List (sortOn)
+import Data.String (IsString)
 import Data.Text (unpack)
 import Network.HTTP.Types (Method, Status, hContentType, status200, status404)
 import Network.Wai (Application, Request (pathInfo, requestMethod), lazyRequestBody, responseLBS)
@@ -57,7 +58,7 @@ router method path body = case (method, path) of
 getIndex :: FilePath -> IO Response
 getIndex dirname = do
   filenames <- listDirectory dirname
-  let paths = map (\filename -> dirname <> "/" <> filename) filenames
+  let paths = map (\filename -> dirname `slash` filename) filenames
   previews <- reverse . sortOn fst <$> mapM getPreview paths
   let content = fromString $ concat $ map snd previews
   content' <- wrap content
@@ -72,10 +73,10 @@ getIndex dirname = do
 
 getPost :: FilePath -> IO Response
 getPost filename = do
-  fileExists <- doesFileExist $ postsPath <> "/" <> filename
+  fileExists <- doesFileExist $ postsPath `slash` filename
   if fileExists
     then do
-      content <- readFile $ postsPath <> "/" <> filename
+      content <- readFile $ postsPath `slash` filename
       let content' = fromString $ compile $ parse $ content
       content'' <- wrap content'
       pure $ Response status200 textHtml content''
@@ -111,6 +112,9 @@ wrap content = do
   footer <- LBS.readFile footerPath
   pure $ header <> content <> footer
 
+slash :: (Semigroup a, IsString a) => a -> a -> a
+slash x y = x <> "/" <> y
+
 --------------------------------------------------------------------------------
 
 port :: Port
@@ -129,19 +133,19 @@ textCss :: ContentType
 textCss = "text/css"
 
 stylePath :: FilePath
-stylePath = wwwPath <> "/style.css"
+stylePath = wwwPath `slash` "style.css"
 
 notFoundPath :: FilePath
-notFoundPath = wwwPath <> "/not-found.html"
+notFoundPath = wwwPath `slash` "not-found.html"
 
 headerPath :: FilePath
-headerPath = wwwPath <> "/header.html"
+headerPath = wwwPath `slash` "header.html"
 
 footerPath :: FilePath
-footerPath = wwwPath <> "/footer.html"
+footerPath = wwwPath `slash` "footer.html"
 
 tulipPath :: FilePath
-tulipPath = wwwPath <> "/tulip.html"
+tulipPath = wwwPath `slash` "tulip.html"
 
 postsPath :: FilePath
 postsPath = "posts"
