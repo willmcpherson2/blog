@@ -3,6 +3,7 @@ FROM haskell:9.2.2
 WORKDIR /opt/blog
 RUN cabal update
 COPY ./blog.cabal /opt/blog/blog.cabal
+COPY ./cabal.project /opt/blog/cabal.project
 RUN cabal build --only-dependencies -j4
 COPY . /opt/blog
 RUN cabal install
