@@ -1,4 +1,4 @@
-FROM haskell:8
+FROM haskell:9.2.2
 
 WORKDIR /opt/blog
 RUN cabal update
