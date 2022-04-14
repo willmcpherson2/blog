@@ -6,6 +6,6 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/willmcpherson2/tulip
-  tag: e87cb4a69348417ee0b0f184ca7e1bf4b610df33
+  tag: 11dce3b075b962aaa536440c66bbeece4839939a
 
 packages: ./blog.cabal
