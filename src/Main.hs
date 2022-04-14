@@ -44,18 +44,18 @@ app request respond = do
 
 router :: Method -> [String] -> ByteString -> IO Response
 router method path body = case (method, path) of
-  ("GET", []) -> serveIndex postsPath
-  ("GET", ["posts"]) -> serveIndex postsPath
-  ("GET", ["posts", title]) -> servePost title
-  ("GET", ["tulip"]) -> serveTulip
+  ("GET", []) -> getIndex postsPath
+  ("GET", ["posts"]) -> getIndex postsPath
+  ("GET", ["posts", title]) -> getPost title
+  ("GET", ["tulip"]) -> getTulip
   ("POST", ["tulip"]) -> postTulip body
-  ("GET", ["www", "style.css"]) -> serveStyle
-  _ -> serveNotFound
+  ("GET", ["www", "style.css"]) -> getStyle
+  _ -> getNotFound
 
 --------------------------------------------------------------------------------
 
-serveIndex :: FilePath -> IO Response
-serveIndex dirname = do
+getIndex :: FilePath -> IO Response
+getIndex dirname = do
   filenames <- listDirectory dirname
   let paths = map (\filename -> dirname <> "/" <> filename) filenames
   previews <- reverse . sortOn fst <$> mapM getPreview paths
@@ -70,8 +70,8 @@ serveIndex dirname = do
           preview = compilePreview path (title document)
       pure (document, preview)
 
-servePost :: FilePath -> IO Response
-servePost filename = do
+getPost :: FilePath -> IO Response
+getPost filename = do
   fileExists <- doesFileExist $ postsPath <> "/" <> filename
   if fileExists
     then do
@@ -79,10 +79,10 @@ servePost filename = do
       let content' = fromString $ compile $ parse $ content
       content'' <- wrap content'
       pure $ Response status200 textHtml content''
-    else serveNotFound
+    else getNotFound
 
-serveTulip :: IO Response
-serveTulip = do
+getTulip :: IO Response
+getTulip = do
   content <- LBS.readFile tulipPath
   content' <- wrap content
   pure $ Response status200 textHtml content'
@@ -92,13 +92,13 @@ postTulip body = do
   let result = getResult $ toString body
   pure $ Response status200 textPlain (fromString result)
 
-serveStyle :: IO Response
-serveStyle = do
+getStyle :: IO Response
+getStyle = do
   content <- LBS.readFile stylePath
   pure $ Response status200 textCss content
 
-serveNotFound :: IO Response
-serveNotFound = do
+getNotFound :: IO Response
+getNotFound = do
   content <- LBS.readFile notFoundPath
   content' <- wrap content
   pure $ Response status404 textHtml content'
