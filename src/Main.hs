@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import Compile (compile, compilePreview)
+import Compile (compile, compilePreview, escape)
 import Data.ByteString qualified as BS
 import Data.ByteString.Lazy (ByteString)
 import Data.ByteString.Lazy qualified as LBS
@@ -90,7 +90,7 @@ getTulip = do
 
 postTulip :: ByteString -> IO Response
 postTulip body = do
-  let result = getResult $ toString body
+  let result = escape $ getResult $ toString body
   pure $ Response status200 textPlain (fromString result)
 
 getStyle :: IO Response

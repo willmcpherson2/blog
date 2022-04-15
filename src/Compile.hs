@@ -1,4 +1,4 @@
-module Compile (compile, compilePreview) where
+module Compile (compile, compilePreview, escape) where
 
 import Data.List.NonEmpty (toList)
 import Data.Time (defaultTimeLocale, formatTime)
@@ -27,7 +27,7 @@ compileDate = \case
 
 compileTitle :: Title -> String
 compileTitle = \case
-  Title s -> "<h1>" <> toList s <> "</h1>"
+  Title s -> "<h1>" <> escape s <> "</h1>"
   TitleError e -> compileError e
 
 compileBlocks :: [Block] -> String
@@ -35,11 +35,11 @@ compileBlocks = concatMap compileBlock
 
 compileBlock :: Block -> String
 compileBlock = \case
-  Heading s -> "<h2>" <> toList s <> "</h2>"
-  Subheading s -> "<h3>" <> toList s <> "</h3>"
+  Heading s -> "<h2>" <> escape s <> "</h2>"
+  Subheading s -> "<h3>" <> escape s <> "</h3>"
   Code s ->
     "<div class='code-block'><code><pre>"
-      <> toList s
+      <> escape s
       <> "</pre></code></div>"
   Paragraph eles -> "<p>" <> compileEles eles <> "</p>"
   BlockError e -> compileError e
@@ -54,9 +54,20 @@ compileEle = \case
   Link caption link ->
     "<a href='" <> toList link <> "'>" <> compileEles caption <> "</a>"
   InlineCode s ->
-    "<span class='code-inline'><code>" <> toList s <> "</code></span>"
-  Plain s -> toList s
+    "<span class='code-inline'><code>" <> escape s <> "</code></span>"
+  Plain s -> escape s
   ElementError e -> compileError e
 
 compileError :: Error -> String
 compileError e = "<span class='error'><code>" <> show e <> "</code></span>"
+
+--------------------------------------------------------------------------------
+
+escape :: Foldable t => t Char -> String
+escape = concatMap $ \case
+  '"' -> "&quot;"
+  '\'' -> "&#39;"
+  '&' -> "&amp;"
+  '<' -> "&lt;"
+  '>' -> "&gt;"
+  ch -> [ch]
