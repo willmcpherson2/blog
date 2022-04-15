@@ -17,7 +17,12 @@ compilePreview path title =
 
 compileDate :: Date -> String
 compileDate = \case
-  Date d -> formatTime defaultTimeLocale "%e %b %Y" d
+  Date d ->
+    "<time datetime='"
+      <> show d
+      <> "'>"
+      <> formatTime defaultTimeLocale "%e %b %Y" d
+      <> "</time>"
   DateError e -> compileError e
 
 compileTitle :: Title -> String
