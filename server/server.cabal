@@ -1,0 +1,17 @@
+cabal-version: 2.4
+name: server
+version: 0.1.0.0
+
+executable server
+  hs-source-dirs: src
+  main-is: Main.hs
+  default-language: Haskell2010
+  default-extensions:
+    OverloadedStrings
+    , LambdaCase
+  ghc-options: -Wall
+  build-depends:
+    base
+    , common
+    , warp
+    , wai-app-static

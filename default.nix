@@ -1,0 +1,23 @@
+let
+  reflex = builtins.fetchTarball { url = "https://github.com/reflex-frp/reflex-platform/archive/123a6f487ca954fd983f6d4cd6b2a69d4c463d10.tar.gz"; };
+  hls = builtins.fetchTarball { url = "https://github.com/NixOS/nixpkgs/archive/bed08131cd29a85f19716d9351940bdc34834492.tar.gz"; };
+in
+{ system ? builtins.currentSystem }:
+(import reflex { inherit system; }).project ({ pkgs, ... }: {
+  useWarp = true;
+
+  packages = {
+    common = ./common;
+    server = ./server;
+    client = ./client;
+  };
+
+  shells = {
+    ghc = [ "common" "server" "client" ];
+    ghcjs = [ "common" "client" ];
+  };
+
+  shellToolOverrides = ghc: super: {
+    haskell-language-server = (import hls { }).haskell-language-server;
+  };
+})
