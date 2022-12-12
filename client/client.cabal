@@ -2,6 +2,9 @@ cabal-version: 2.4
 name: client
 version: 0.1.0.0
 
+flag dev
+  default: False
+
 executable client
   hs-source-dirs: src
   main-is: Main.hs
@@ -9,8 +12,19 @@ executable client
   default-extensions:
     OverloadedStrings
     , LambdaCase
-  ghc-options: -Wall
+  if !flag(dev) && impl(ghcjs)
+    ghc-options:
+      -dedupe
+      -Wall
+      -O2
+  else
+    ghc-options:
+      -Wall
+      -O0
   build-depends:
     base
     , common
+    , reflex
     , reflex-dom
+    , containers
+    , text

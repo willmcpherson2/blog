@@ -2,6 +2,9 @@ cabal-version: 2.4
 name: server
 version: 0.1.0.0
 
+flag dev
+  default: False
+
 executable server
   hs-source-dirs: src
   main-is: Main.hs
@@ -9,7 +12,14 @@ executable server
   default-extensions:
     OverloadedStrings
     , LambdaCase
-  ghc-options: -Wall
+  if flag(dev)
+    ghc-options:
+      -Wall
+      -O0
+  else
+    ghc-options:
+      -Wall
+      -O2
   build-depends:
     base
     , common

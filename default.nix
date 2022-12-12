@@ -19,5 +19,16 @@ in
 
   shellToolOverrides = ghc: super: {
     haskell-language-server = (import hls { }).haskell-language-server;
+    entr = pkgs.entr;
+    server-reload = pkgs.writeShellScriptBin "server-reload" ''
+      ghcid \
+        --run \
+        --warnings \
+        --command "cabal new-repl -fdev server" \
+        --setup ":set args $(find "$PWD/dist-newstyle" -type d -name client.jsexe)"
+    '';
+    client-reload = pkgs.writeShellScriptBin "client-reload" ''
+      find client | entr cabal new-build --ghcjs -fdev client
+    '';
   };
 })
