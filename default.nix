@@ -1,34 +1,23 @@
 let
-  reflex = builtins.fetchTarball { url = "https://github.com/reflex-frp/reflex-platform/archive/123a6f487ca954fd983f6d4cd6b2a69d4c463d10.tar.gz"; };
-  hls = builtins.fetchTarball { url = "https://github.com/NixOS/nixpkgs/archive/bed08131cd29a85f19716d9351940bdc34834492.tar.gz"; };
+  shell = import ./shell.nix;
+  inherit (import <nixpkgs> { }) stdenv concatText closurecompiler;
+  server = shell.ghc.server;
+  client = shell.ghcjs.client;
 in
-{ system ? builtins.currentSystem }:
-(import reflex { inherit system; }).project ({ pkgs, ... }: {
-  useWarp = true;
-
-  packages = {
-    common = ./common;
-    server = ./server;
-    client = ./client;
-  };
-
-  shells = {
-    ghc = [ "common" "server" "client" ];
-    ghcjs = [ "common" "client" ];
-  };
-
-  shellToolOverrides = ghc: super: {
-    haskell-language-server = (import hls { }).haskell-language-server;
-    entr = pkgs.entr;
-    server-reload = pkgs.writeShellScriptBin "server-reload" ''
-      ghcid \
-        --run \
-        --warnings \
-        --command "cabal new-repl -fdev server" \
-        --setup ":set args $(find "$PWD/dist-newstyle" -type d -name client.jsexe)"
-    '';
-    client-reload = pkgs.writeShellScriptBin "client-reload" ''
-      find client | entr cabal new-build --ghcjs -fdev client
-    '';
-  };
-})
+stdenv.mkDerivation {
+  name = "blog";
+  src = ./index.html;
+  dontUnpack = true;
+  buildInputs = [ closurecompiler ];
+  installPhase = ''
+    mkdir -p $out/{bin,static}
+    cp ${server}/bin/* $out/bin
+    cp $src $out/static/index.html
+    closure-compiler \
+      --warning_level QUIET \
+      --compilation_level ADVANCED_OPTIMIZATIONS \
+      --jscomp_off=checkVars \
+      --externs=${client}/bin/client.jsexe/all.js.externs \
+      ${client}/bin/client.jsexe/all.js > $out/static/all.js
+  '';
+}
