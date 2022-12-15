@@ -21,6 +21,9 @@ executable client
     ghc-options:
       -Wall
       -O0
+  other-modules:
+    Post
+    Posts
   build-depends:
     base
     , common
@@ -29,3 +32,5 @@ executable client
     , jsaddle-dom
     , containers
     , text
+    , split
+    , time
