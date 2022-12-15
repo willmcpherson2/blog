@@ -23,5 +23,8 @@ executable server
   build-depends:
     base
     , common
+    , wai
     , warp
-    , wai-app-static
+    , http-types
+    , text
+    , bytestring

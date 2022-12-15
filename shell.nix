@@ -30,7 +30,7 @@ reflex.project ({ pkgs, ... }: {
         --run \
         --warnings \
         --command "cabal new-repl -fdev server" \
-        --setup ":set args $(find "$PWD/dist-newstyle" -type d -name client.jsexe)"
+        --setup ":set args "$PWD/index.html" $(find "$PWD/dist-newstyle" -type f -name all.js)"
     '';
     client-reload = pkgs.writeShellScriptBin "client-reload" ''
       find client | entr -s "cabal new-build --ghcjs -fdev client"

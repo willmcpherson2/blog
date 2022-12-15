@@ -1,24 +1,28 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecursiveDo #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-
 module Main where
 
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad.Fix (MonadFix)
-import Data.Map (Map)
-import qualified Data.Map as Map
-import Data.Text (Text, pack, unpack)
-import qualified Data.Text as T
-import Reflex
+import Data.Text (pack)
+import JSDOM (currentWindow)
+import JSDOM.Custom.Window (getLocation)
+import JSDOM.Generated.Location (getPathname)
 import Reflex.Dom
-import Text.Read (readMaybe)
 
 main :: IO ()
-main = mainWidget widget
+main = mainWidgetWithHead headElement bodyElement
 
-widget :: (DomBuilder t m, PostBuild t m) => m ()
-widget = el "div" $ do
-  t <- inputElement def
-  text ""
-  dynText $ _inputElement_value t
+headElement :: Widget x ()
+headElement = do
+  el "title" $ text "willmcpherson2"
+
+bodyElement :: Widget x ()
+bodyElement = do
+  header
+  currentWindow >>= \case
+    Just window -> getLocation window >>= getPathname >>= route
+    Nothing -> error "no window"
+
+route :: String -> Widget x ()
+route pathname = el "pre" $ text $ pack pathname
+
+header :: Widget x ()
+header = do
+  el "h1" $ elAttr "a" ("href" =: "/") $ text "willmcpherson2"

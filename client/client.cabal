@@ -26,5 +26,6 @@ executable client
     , common
     , reflex
     , reflex-dom
+    , jsaddle-dom
     , containers
     , text
