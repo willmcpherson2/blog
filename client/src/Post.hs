@@ -1,15 +1,17 @@
-module Post (Post (..)) where
+module Post (Post (..), posts) where
 
-import Data.Function (on)
-import Data.Time (Day)
+import Data.Time (Day, fromGregorian)
+import Reflex.Dom (Widget)
+import qualified Post.HelloWorld
 
 data Post = Post
   { key :: String,
     date :: Day,
     title :: String,
-    content :: String
+    content :: forall x. Widget x ()
   }
-  deriving (Eq)
 
-instance Ord Post where
-  compare = compare `on` date
+posts :: [Post]
+posts =
+  [ Post "hello-world" (fromGregorian 2022 2 1) "Hello World" Post.HelloWorld.post
+  ]

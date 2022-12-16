@@ -13,6 +13,7 @@ executable client
     OverloadedStrings
     , LambdaCase
     , QuasiQuotes
+    , RankNTypes
   if !flag(dev) && impl(ghcjs)
     ghc-options:
       -dedupe
@@ -26,7 +27,7 @@ executable client
       -O0
   other-modules:
     Post
-    Posts
+    Post.HelloWorld
   build-depends:
     base
     , common

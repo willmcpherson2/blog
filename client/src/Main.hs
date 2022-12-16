@@ -1,14 +1,13 @@
 module Main where
 
-import Data.List (find, sort)
+import Data.List (find, sortOn)
 import Data.List.Split (splitOn)
 import Data.Text (pack)
 import Debug.Trace (traceShowId)
 import JSDOM (currentWindow)
 import JSDOM.Custom.Window (getLocation)
 import JSDOM.Generated.Location (getPathname)
-import Post (Post (..))
-import Posts (posts)
+import Post (posts, Post (..))
 import Reflex.Dom
 
 main :: IO ()
@@ -27,7 +26,7 @@ bodyElement = do
 
 header :: Widget x ()
 header = do
-  el "h1" $ elAttr "a" ("href" =: "/") $ text "willmcpherson2"
+  el "h2" $ elAttr "a" ("href" =: "/") $ text "willmcpherson2"
 
 route :: String -> Widget x ()
 route pathname = case filter (not . null) $ splitOn "/" pathname of
@@ -41,7 +40,7 @@ index :: Widget x ()
 index = previews
 
 previews :: Widget x ()
-previews = mapM_ preview $ sort posts
+previews = mapM_ preview $ sortOn date posts
 
 preview :: Post -> Widget x ()
 preview post = el "div" $ elAttr "a" ("href" =: pack ("/posts/" <> key post)) $ text $ pack $ title post
@@ -49,9 +48,9 @@ preview post = el "div" $ elAttr "a" ("href" =: pack ("/posts/" <> key post)) $ 
 post :: String -> Widget x ()
 post k = case find (\p -> key p == k) posts of
   Just p -> do
-    el "h2" $ text $ pack $ title p
+    el "h1" $ text $ pack $ title p
     el "date" $ text $ pack $ show $ date p
-    el "p" $ text $ pack $ content p
+    content p
   Nothing -> notFound
 
 tulip :: Widget x ()
