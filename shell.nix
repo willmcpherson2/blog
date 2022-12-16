@@ -33,7 +33,7 @@ reflex.project ({ pkgs, ... }: {
         --setup ":set args "$PWD/index.html" $(find "$PWD/dist-newstyle" -type f -name all.js)"
     '';
     client-reload = pkgs.writeShellScriptBin "client-reload" ''
-      find client | entr -s "cabal new-build --ghcjs -fdev client"
+      find common client | entr -s "cabal new-build --ghcjs -fdev client"
     '';
   };
 

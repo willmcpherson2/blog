@@ -15,10 +15,12 @@ executable server
   if flag(dev)
     ghc-options:
       -Wall
+      -Wno-name-shadowing
       -O0
   else
     ghc-options:
       -Wall
+      -Wno-name-shadowing
       -O2
   build-depends:
     base

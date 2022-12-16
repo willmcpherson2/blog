@@ -12,14 +12,17 @@ executable client
   default-extensions:
     OverloadedStrings
     , LambdaCase
+    , QuasiQuotes
   if !flag(dev) && impl(ghcjs)
     ghc-options:
       -dedupe
       -Wall
+      -Wno-name-shadowing
       -O2
   else
     ghc-options:
       -Wall
+      -Wno-name-shadowing
       -O0
   other-modules:
     Post
