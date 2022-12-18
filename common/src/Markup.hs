@@ -95,7 +95,7 @@ generate = \case
     Code -> elExp "pre" ts
     Italics -> elExp "i" ts
     Link -> case ts of
-      [caption, Branch _ [Leaf link]] ->
+      [caption, Leaf link] ->
         AppE
           ( AppE
               (AppE (VarE 'elAttr) (LitE $ StringL "a"))

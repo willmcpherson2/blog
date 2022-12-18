@@ -15,7 +15,7 @@ instead say something like "0.1% of your salary".
 ]
 
 p[
-This site is being hosted on l[Heroku[https://heroku.com]] as a Docker container
+This site is being hosted on l[[Heroku]https://heroku.com] as a Docker container
 containing a small Haskell server. In this post I'll discuss each technology
 and make some recommendations.
 ]
@@ -52,19 +52,19 @@ configs.
 
 p[
 Interacting with Heroku is pretty KISS. Need to containerise? Just add a
-l[Dockerfile[https://github.com/willmcpherson2/blog/blob/main/Dockerfile]] and
-l[3 lines of YAML[https://github.com/willmcpherson2/blog/blob/main/heroku.yml]]
+l[[Dockerfile]https://github.com/willmcpherson2/blog/blob/main/Dockerfile] and
+l[[3 lines of YAML]https://github.com/willmcpherson2/blog/blob/main/heroku.yml]
 and run c[heroku stack:set container]. Want to use a regular shell script
 instead? Just link to a git repository containing the script from your
-l[app.json[https://github.com/willmcpherson2/notcord/blob/main/app.json]]. Time
+l[[app.json]https://github.com/willmcpherson2/notcord/blob/main/app.json]. Time
 to push? Just c[git push heroku].
 ]
 
 h1[Docker]
 
 p[
-I wanted to use Docker because there's an l[official Haskell
-image[https://hub.docker.com/_/haskell]] which means I can totally skip the
+I wanted to use Docker because there's an l[[official Haskell
+image]https://hub.docker.com/_/haskell] which means I can totally skip the
 toolchain installation. I ended up being able to copy-and-paste one of their
 Dockerfile examples and only had to change some names. Then it's just that bit
 of YAML and that c[heroku stack:set container] thing.
