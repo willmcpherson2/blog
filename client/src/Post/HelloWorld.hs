@@ -9,18 +9,18 @@ post = [m|
 p[
 I've finally bit the bullet and bought a domain and a real host. I have some
 sort of irrational fear of monthly subscriptions that has prevented me from
-subscribing to i[anything] until now. "The cost of a cup of coffee each month"
+subscribing to *[anything] until now. "The cost of a cup of coffee each month"
 seems to have the opposite effect on me. Marketing targeted towards me should
 instead say something like "0.1% of your salary".
 ]
 
 p[
-This site is being hosted on l[[Heroku]https://heroku.com] as a Docker container
+This site is being hosted on @[[Heroku]https://heroku.com] as a Docker container
 containing a small Haskell server. In this post I'll discuss each technology
 and make some recommendations.
 ]
 
-h1[Heroku]
+#[Heroku]
 
 p[
 I used Heroku throughout my undergrad course and have always enjoyed using it.
@@ -52,22 +52,22 @@ configs.
 
 p[
 Interacting with Heroku is pretty KISS. Need to containerise? Just add a
-l[[Dockerfile]https://github.com/willmcpherson2/blog/blob/main/Dockerfile] and
-l[[3 lines of YAML]https://github.com/willmcpherson2/blog/blob/main/heroku.yml]
-and run c[heroku stack:set container]. Want to use a regular shell script
+@[[Dockerfile]https://github.com/willmcpherson2/blog/blob/main/Dockerfile] and
+@[[3 lines of YAML]https://github.com/willmcpherson2/blog/blob/main/heroku.yml]
+and run `[heroku stack:set container]. Want to use a regular shell script
 instead? Just link to a git repository containing the script from your
-l[[app.json]https://github.com/willmcpherson2/notcord/blob/main/app.json]. Time
-to push? Just c[git push heroku].
+@[[app.json]https://github.com/willmcpherson2/notcord/blob/main/app.json]. Time
+to push? Just `[git push heroku].
 ]
 
-h1[Docker]
+#[Docker]
 
 p[
-I wanted to use Docker because there's an l[[official Haskell
+I wanted to use Docker because there's an @[[official Haskell
 image]https://hub.docker.com/_/haskell] which means I can totally skip the
 toolchain installation. I ended up being able to copy-and-paste one of their
 Dockerfile examples and only had to change some names. Then it's just that bit
-of YAML and that c[heroku stack:set container] thing.
+of YAML and that `[heroku stack:set container] thing.
 ]
 
 p[
@@ -78,7 +78,7 @@ jaded and think about "the state of computing". Instead of that pessimistic
 rant, I will try to give a more cool-headed state of the union.
 ]
 
-h2[State of the Union]
+##[State of the Union]
 
 p[
 Platform agnosticism is not really happening. The primary reason I had to spend
@@ -98,9 +98,9 @@ cloud. The easiest (only?) way to write a macOS application is to just use
 macOS.
 ]
 
-h1[Haskell]
+#[Haskell]
 
-h2[For Servers]
+##[For Servers]
 
 p[
 Web servers in Haskell are great. And I don't even have to tell you about some
@@ -108,7 +108,7 @@ cool new library that encodes your routes at the type level. I stuck to the
 basics:
 ]
 
-c[
+`[
 build-depends:
   base
   , directory
@@ -123,7 +123,7 @@ p[
 The whole gist of the server is this case expression:
 ]
 
-c[
+`[
 router :: Method -> Path -> IO (Status, Content)
 router method path = case (method, path) of
   ("GET", []) -> index "posts"
@@ -144,7 +144,7 @@ great membrane which is monadic IO. In Haskell you really can say that a value
 is a "computation" and that a monadic value is an "action".
 ]
 
-h2[For Compilers]
+##[For Compilers]
 
 p[
 Did you really think you could read about Haskell without also reading about
@@ -152,7 +152,7 @@ compilers? This server also contains a little markdown compiler. Here's the
 language definition ripped right out of the source code:
 ]
 
-c[
+`[
 blockParsers :: [ParseMaybe]
 blockParsers =
   [ mkParser Rule "---" "\n"

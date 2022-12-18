@@ -53,12 +53,12 @@ strToStyle s =
     map
       (\(keyword, style) -> (style,) <$> stripPrefix keyword s)
       [ ("[", Plain),
-        ("h1[", Heading),
-        ("h2[", Subheading),
+        ("#[", Heading),
+        ("##[", Subheading),
         ("p[", Paragraph),
-        ("c[", Code),
-        ("i[", Italics),
-        ("l[", Link)
+        ("`[", Code),
+        ("*[", Italics),
+        ("@[", Link)
       ]
 
 branch :: Style -> String -> (Maybe Tree, String)
