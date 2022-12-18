@@ -1,5 +1,7 @@
 module Markup where
 
+import Data.Foldable (asum)
+import Data.List (stripPrefix)
 import Data.Text (pack)
 import Language.Haskell.TH.Quote (QuasiQuoter (..))
 import Language.Haskell.TH.Syntax (Exp (..), Lit (..), Stmt (..))
@@ -39,16 +41,25 @@ parseTop s = case parse s of
 
 parse :: String -> (Maybe Tree, String)
 parse = \case
-  '[' : s -> branch Plain s
-  'h' : '1' : '[' : s -> branch Heading s
-  'h' : '2' : '[' : s -> branch Subheading s
-  'p' : '[' : s -> branch Paragraph s
-  'c' : '[' : s -> branch Code s
-  'i' : '[' : s -> branch Italics s
-  'l' : '[' : s -> branch Link s
   ']' : s -> (Nothing, s)
-  ch : s -> (Just $ Leaf [ch], s)
+  ch : s -> case strToStyle (ch : s) of
+    Just (style, s) -> branch style s
+    Nothing -> (Just $ Leaf [ch], s)
   [] -> (Nothing, [])
+
+strToStyle :: String -> Maybe (Style, String)
+strToStyle s =
+  asum $
+    map
+      (\(keyword, style) -> (style,) <$> stripPrefix keyword s)
+      [ ("[", Plain),
+        ("h1[", Heading),
+        ("h2[", Subheading),
+        ("p[", Paragraph),
+        ("c[", Code),
+        ("i[", Italics),
+        ("l[", Link)
+      ]
 
 branch :: Style -> String -> (Maybe Tree, String)
 branch style s =
