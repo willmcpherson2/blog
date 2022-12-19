@@ -20,6 +20,7 @@ executable client
       -Wall
       -Wno-name-shadowing
       -O2
+      -fsimpl-tick-factor=1000
   else
     ghc-options:
       -Wall
