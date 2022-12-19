@@ -44,15 +44,13 @@ parse :: String -> (String, Maybe Tree)
 parse = \case
   [] -> ([], Nothing)
   ']' : rest -> (rest, Nothing)
-  s -> case parseStyle s of
-    ([], _) -> ([], Nothing)
-    (s@(ch : rest), style) -> case parseOpen s of
-      Nothing -> (rest, Just $ Leaf [ch])
-      Just (rest, escape) -> case escape of
-        [] -> Just . Branch style <$> branch rest
-        escape ->
-          let (rest', s) = escapeBranch escape rest
-           in (rest', Just $ Branch style [Leaf s])
+  ch : rest ->
+    let (rest', style) = parseStyle (ch : rest)
+     in case parseOpen rest' of
+          Nothing -> (rest, Just $ Leaf [ch])
+          Just (rest'', []) -> Just . Branch style <$> branch rest''
+          Just (rest'', escape) ->
+            Just . Branch style . (: []) . Leaf <$> escapeBranch escape rest''
 
 parseStyle :: String -> (String, Style)
 parseStyle s =
