@@ -2,6 +2,7 @@ module Markup where
 
 import Data.Foldable (asum)
 import Data.List (stripPrefix)
+import Data.Maybe (fromMaybe)
 import Data.Text (pack)
 import Language.Haskell.TH.Quote (QuasiQuoter (..))
 import Language.Haskell.TH.Syntax (Exp (..), Lit (..), Stmt (..))
@@ -32,46 +33,61 @@ compile = generateTop . parseTop
 
 parseTop :: String -> [Tree]
 parseTop s = case parse s of
-  (Just b@Branch {}, s) -> case s of
+  (rest, Just b@Branch {}) -> case rest of
     [] -> [b]
-    s -> b : parseTop s
-  (_, s) -> case s of
+    rest -> b : parseTop rest
+  (rest, _) -> case rest of
     [] -> []
-    s -> parseTop s
+    rest -> parseTop rest
 
-parse :: String -> (Maybe Tree, String)
+parse :: String -> (String, Maybe Tree)
 parse = \case
-  ']' : s -> (Nothing, s)
-  ch : s -> case strToStyle (ch : s) of
-    Just (style, s) -> branch style s
-    Nothing -> (Just $ Leaf [ch], s)
-  [] -> (Nothing, [])
+  [] -> ([], Nothing)
+  ']' : rest -> (rest, Nothing)
+  s -> case parseStyle s of
+    ([], _) -> ([], Nothing)
+    (s@(ch : rest), style) -> case parseOpen s of
+      Nothing -> (rest, Just $ Leaf [ch])
+      Just (rest, escape) -> case escape of
+        [] -> Just . Branch style <$> branch rest
+        escape ->
+          let (rest', s) = escapeBranch escape rest
+           in (rest', Just $ Branch style [Leaf s])
 
-strToStyle :: String -> Maybe (Style, String)
-strToStyle s =
-  asum $
-    map
-      (\(keyword, style) -> (style,) <$> stripPrefix keyword s)
-      [ ("[", Plain),
-        ("#[", Heading),
-        ("##[", Subheading),
-        ("p[", Paragraph),
-        ("`[", Code),
-        ("*[", Italics),
-        ("@[", Link)
-      ]
+parseStyle :: String -> (String, Style)
+parseStyle s =
+  fromMaybe (s, Plain) $
+    asum $
+      map
+        (\(keyword, style) -> (,style) <$> stripPrefix keyword s)
+        [ ("##", Subheading),
+          ("#", Heading),
+          ("p", Paragraph),
+          ("`", Code),
+          ("*", Italics),
+          ("@", Link)
+        ]
 
-branch :: Style -> String -> (Maybe Tree, String)
-branch style s =
-  let (ts, s') = go s
-   in (Just $ Branch style (concatLeafs ts), s')
+parseOpen :: String -> Maybe (String, String)
+parseOpen s = case span (== '|') s of
+  (escape, '[' : rest) -> Just (rest, escape)
+  _ -> Nothing
+
+escapeBranch :: String -> String -> (String, String)
+escapeBranch escape = \case
+  [] -> ([], [])
+  ch : rest -> case ch of
+    ']' -> case stripPrefix escape rest of
+      Just rest -> (rest, [])
+      Nothing -> (ch :) <$> escapeBranch escape rest
+    ch -> (ch :) <$> escapeBranch escape rest
+
+branch :: String -> (String, [Tree])
+branch = fmap concatLeafs . go
   where
-    go :: String -> ([Tree], String)
     go s = case parse s of
-      (Nothing, s) -> ([], s)
-      (Just t, s) ->
-        let (ts, s') = go s
-         in (t : ts, s')
+      (rest, Nothing) -> (rest, [])
+      (rest, Just t) -> (t :) <$> go rest
 
 concatLeafs :: [Tree] -> [Tree]
 concatLeafs = \case
