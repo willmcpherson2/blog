@@ -31,6 +31,12 @@ route dir = \case
       [(hContentType, "text/javascript")]
       (dir <> "/all.js")
       Nothing
+  ["favicon.ico"] ->
+    responseFile
+      status200
+      [(hContentType, "image/x-icon")]
+      (dir <> "/favicon.ico")
+      Nothing
   _ ->
     responseFile
       status200

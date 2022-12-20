@@ -32,13 +32,14 @@ reflex.project ({ pkgs, ... }: {
       cabal new-build --ghcjs -fdev client
       alljs="$(find dist-newstyle -type f -name all.js)"
       mkdir -p static
-      cp index.html $alljs static
+      cp -r www/* static
+      cp $alljs static
     '';
     server-reload = pkgs.writeShellScriptBin "server-reload" ''
-      find common server index.html | entr -r server-run
+      find common server www | entr -r server-run
     '';
     client-reload = pkgs.writeShellScriptBin "client-reload" ''
-      find common client index.html | entr client-build
+      find common client www | entr client-build
     '';
   };
 

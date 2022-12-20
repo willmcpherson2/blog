@@ -6,13 +6,13 @@ let
 in
 stdenv.mkDerivation {
   name = "willmcpherson2.com";
-  src = ./index.html;
+  src = ./www;
   dontUnpack = true;
   buildInputs = [ closurecompiler ];
   installPhase = ''
     mkdir -p $out/{bin,static}
     cp ${server}/bin/* $out/bin
-    cp $src $out/static/index.html
+    cp -r $src/* $out/static
     closure-compiler \
       --warning_level QUIET \
       --compilation_level ADVANCED_OPTIMIZATIONS \
