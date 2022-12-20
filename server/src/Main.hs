@@ -10,21 +10,30 @@ import Prelude hiding (readFile)
 main :: IO ()
 main =
   getArgs >>= \case
-    [html, js] -> do
-      putStrLn $ "html: " <> html
-      putStrLn $ "js: " <> js
+    [dir] -> do
+      putStrLn $ "dir: " <> dir
       putStrLn "at http://localhost:8000/"
-      run 8000 $ app html js
+      run 8000 $ app dir
     _ -> putStrLn "no html/js to serve"
 
-app :: String -> String -> Application
-app html js request respond = do
+app :: String -> Application
+app dir request respond = do
   let method = requestMethod request
       path = map unpack (pathInfo request)
   print (method, path)
-  respond $ route html js path
+  respond $ route dir path
 
-route :: String -> String -> [String] -> Response
-route html js = \case
-  ["all.js"] -> responseFile status200 [(hContentType, "text/javascript")] js Nothing
-  _ -> responseFile status200 [(hContentType, "text/html")] html Nothing
+route :: String -> [String] -> Response
+route dir = \case
+  ["all.js"] ->
+    responseFile
+      status200
+      [(hContentType, "text/javascript")]
+      (dir <> "/all.js")
+      Nothing
+  _ ->
+    responseFile
+      status200
+      [(hContentType, "text/html")]
+      (dir <> "/index.html")
+      Nothing

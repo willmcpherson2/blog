@@ -25,15 +25,20 @@ reflex.project ({ pkgs, ... }: {
   shellToolOverrides = ghc: super: {
     inherit haskell-language-server;
     inherit (pkgs) entr;
+    server-run = pkgs.writeShellScriptBin "server-run" ''
+      cabal new-run -fdev server -- static
+    '';
+    client-build = pkgs.writeShellScriptBin "client-build" ''
+      cabal new-build --ghcjs -fdev client
+      alljs="$(find dist-newstyle -type f -name all.js)"
+      mkdir -p static
+      cp index.html $alljs static
+    '';
     server-reload = pkgs.writeShellScriptBin "server-reload" ''
-      ghcid \
-        --run \
-        --warnings \
-        --command "cabal new-repl -fdev server" \
-        --setup ":set args "$PWD/index.html" $(find "$PWD/dist-newstyle" -type f -name all.js)"
+      find common server index.html | entr -r server-run
     '';
     client-reload = pkgs.writeShellScriptBin "client-reload" ''
-      find common client | entr -s "cabal new-build --ghcjs -fdev client"
+      find common client index.html | entr client-build
     '';
   };
 
