@@ -68,4 +68,4 @@ tulip = do
   el "pre" $ dynText output
 
 notFound :: Widget x ()
-notFound = error "not implemented"
+notFound = text "page not found!"
