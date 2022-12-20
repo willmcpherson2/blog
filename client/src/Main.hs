@@ -2,13 +2,13 @@ module Main where
 
 import Data.List (find, sortOn)
 import Data.List.Split (splitOn)
-import Data.Text (pack)
-import Debug.Trace (traceShowId)
+import Data.Text (pack, unpack)
 import JSDOM (currentWindow)
 import JSDOM.Custom.Window (getLocation)
 import JSDOM.Generated.Location (getPathname)
 import Post (posts, Post (..))
 import Reflex.Dom
+import Tulip (getResult)
 
 main :: IO ()
 main = mainWidgetWithHead headElement bodyElement
@@ -27,6 +27,13 @@ bodyElement = do
 header :: Widget x ()
 header = do
   el "h2" $ elAttr "a" ("href" =: "/") $ text "willmcpherson2"
+  el "nav" $ do
+    elAttr "a" ("href" =: "/posts") $ text "blog"
+    text " "
+    elAttr "a" ("href" =: "/tulip") $ text "tulip"
+  text " "
+  el "hr" blank
+  text " "
 
 route :: String -> Widget x ()
 route pathname = case filter (not . null) $ splitOn "/" pathname of
@@ -54,7 +61,11 @@ post k = case find (\p -> key p == k) posts of
   Nothing -> notFound
 
 tulip :: Widget x ()
-tulip = error "not implemented"
+tulip = do
+  area <- textAreaElement def
+  let inputEvent = _textAreaElement_input area
+  output <- foldDyn (\source _ -> pack $ getResult $ unpack source) "" inputEvent
+  el "pre" $ dynText output
 
 notFound :: Widget x ()
 notFound = error "not implemented"

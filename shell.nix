@@ -15,11 +15,13 @@ reflex.project ({ pkgs, ... }: {
     common = ./common;
     server = ./server;
     client = ./client;
+    parss = ./parss;
+    tulip = ./tulip;
   };
 
   shells = {
-    ghc = [ "common" "server" "client" ];
-    ghcjs = [ "common" "client" ];
+    ghc = [ "common" "server" "client" "parss" "tulip" ];
+    ghcjs = [ "common" "client" "parss" "tulip" ];
   };
 
   shellToolOverrides = ghc: super: {

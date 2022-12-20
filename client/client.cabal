@@ -39,3 +39,4 @@ executable client
     , text
     , split
     , time
+    , tulip

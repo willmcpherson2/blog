@@ -1,0 +1,8 @@
+[submodule "parss"]
+	path = parss
+	url = git@github.com:willmcpherson2/parss.git
+	branch = main
+[submodule "tulip"]
+	path = tulip
+	url = git@github.com:willmcpherson2/tulip.git
+	branch = main
