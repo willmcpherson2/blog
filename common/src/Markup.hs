@@ -21,9 +21,10 @@ data Tree = Leaf String | Branch Style [Tree]
 
 data Style
   = Plain
-  | Heading
   | Subheading
+  | Heading
   | Paragraph
+  | CodeBlock
   | Code
   | Italics
   | Link
@@ -61,6 +62,7 @@ parseStyle s =
         [ ("##", Subheading),
           ("#", Heading),
           ("p", Paragraph),
+          ("``", CodeBlock),
           ("`", Code),
           ("*", Italics),
           ("@", Link)
@@ -106,7 +108,8 @@ generate = \case
     Heading -> elExp "h2" ts
     Subheading -> elExp "h3" ts
     Paragraph -> elExp "p" ts
-    Code -> elExp "pre" ts
+    CodeBlock -> AppE (AppE (VarE 'el) (LitE $ StringL "pre")) (elExp "code" ts)
+    Code -> elExp "code" ts
     Italics -> elExp "i" ts
     Link -> case ts of
       [caption, Leaf link] ->

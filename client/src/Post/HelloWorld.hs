@@ -108,7 +108,7 @@ cool new library that encodes your routes at the type level. I stuck to the
 basics:
 ]
 
-`[
+``[
 build-depends:
   base
   , directory
@@ -123,7 +123,7 @@ p[
 The whole gist of the server is this case expression:
 ]
 
-`|[
+``|[
 router :: Method -> Path -> IO (Status, Content)
 router method path = case (method, path) of
   ("GET", []) -> index "posts"
@@ -152,7 +152,7 @@ compilers? This server also contains a little markdown compiler. Here's the
 language definition ripped right out of the source code:
 ]
 
-`|[
+``|[
 blockParsers :: [ParseMaybe]
 blockParsers =
   [ mkParser Rule "---" "\n"

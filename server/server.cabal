@@ -24,7 +24,6 @@ executable server
       -O2
   build-depends:
     base
-    , common
     , wai
     , warp
     , http-types

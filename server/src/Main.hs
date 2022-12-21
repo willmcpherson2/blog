@@ -1,5 +1,6 @@
 module Main where
 
+import Data.ByteString (ByteString)
 import Data.Text (unpack)
 import Network.HTTP.Types (hContentType, status200)
 import Network.Wai (Application, Request (pathInfo, requestMethod), Response, responseFile)
@@ -25,21 +26,15 @@ app dir request respond = do
 
 route :: String -> [String] -> Response
 route dir = \case
-  ["all.js"] ->
-    responseFile
-      status200
-      [(hContentType, "text/javascript")]
-      (dir <> "/all.js")
-      Nothing
-  ["favicon.ico"] ->
-    responseFile
-      status200
-      [(hContentType, "image/x-icon")]
-      (dir <> "/favicon.ico")
-      Nothing
-  _ ->
-    responseFile
-      status200
-      [(hContentType, "text/html")]
-      (dir <> "/index.html")
-      Nothing
+  ["style.css"] -> res dir "style.css" "text/css"
+  ["all.js"] -> res dir "all.js" "text/javascript"
+  ["favicon.ico"] -> res dir "favicon.ico" "image/x-icon"
+  _ -> res dir "/index.html" "text/html"
+
+res :: FilePath -> FilePath -> ByteString -> Response
+res dir file mime =
+  responseFile
+    status200
+    [(hContentType, mime)]
+    (dir <> "/" <> file)
+    Nothing

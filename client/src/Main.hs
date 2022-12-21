@@ -16,6 +16,7 @@ main = mainWidgetWithHead headElement bodyElement
 headElement :: Widget x ()
 headElement = do
   el "title" $ text "willmcpherson2"
+  elAttr "link" ("rel" =: "stylesheet" <> "href" =: "/style.css") $ text "blog"
 
 bodyElement :: Widget x ()
 bodyElement = do
@@ -25,15 +26,13 @@ bodyElement = do
     Nothing -> error "no window"
 
 header :: Widget x ()
-header = do
+header = elClass "div" "header" $ do
   el "h2" $ elAttr "a" ("href" =: "/") $ text "willmcpherson2"
   el "nav" $ do
     elAttr "a" ("href" =: "/posts") $ text "blog"
     text " "
     elAttr "a" ("href" =: "/tulip") $ text "tulip"
-  text " "
   el "hr" blank
-  text " "
 
 route :: String -> Widget x ()
 route pathname = case filter (not . null) $ splitOn "/" pathname of
