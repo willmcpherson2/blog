@@ -38,10 +38,10 @@ reflex.project ({ pkgs, ... }: {
       cp $alljs static
     '';
     server-reload = pkgs.writeShellScriptBin "server-reload" ''
-      find markup server www | entr -rs server-run
+      find server | entr -rs server-run
     '';
     client-reload = pkgs.writeShellScriptBin "client-reload" ''
-      find markup client www | entr -s client-build
+      find markup client www parss tulip | entr -s client-build
     '';
   };
 
