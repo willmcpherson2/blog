@@ -31,7 +31,7 @@ executable client
     Post.HelloWorld
   build-depends:
     base
-    , common
+    , markup
     , reflex
     , reflex-dom
     , jsaddle-dom

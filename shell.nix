@@ -12,7 +12,7 @@ let
 in
 reflex.project ({ pkgs, ... }: {
   packages = {
-    common = ./common;
+    markup = ./markup;
     server = ./server;
     client = ./client;
     parss = ./parss;
@@ -20,8 +20,8 @@ reflex.project ({ pkgs, ... }: {
   };
 
   shells = {
-    ghc = [ "common" "server" "client" "parss" "tulip" ];
-    ghcjs = [ "common" "client" "parss" "tulip" ];
+    ghc = [ "markup" "server" "client" "parss" "tulip" ];
+    ghcjs = [ "markup" "client" "parss" "tulip" ];
   };
 
   shellToolOverrides = ghc: super: {
@@ -38,10 +38,10 @@ reflex.project ({ pkgs, ... }: {
       cp $alljs static
     '';
     server-reload = pkgs.writeShellScriptBin "server-reload" ''
-      find common server www | entr -rs server-run
+      find markup server www | entr -rs server-run
     '';
     client-reload = pkgs.writeShellScriptBin "client-reload" ''
-      find common client www | entr -s client-build
+      find markup client www | entr -s client-build
     '';
   };
 
