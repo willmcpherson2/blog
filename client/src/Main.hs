@@ -49,7 +49,10 @@ previews :: Widget x ()
 previews = mapM_ preview $ sortOn date posts
 
 preview :: Post -> Widget x ()
-preview post = el "div" $ elAttr "a" ("href" =: pack ("/posts/" <> key post)) $ text $ pack $ title post
+preview post = elClass "div" "preview" $ do
+  elAttr "a" ("href" =: pack ("/posts/" <> key post)) $ text $ pack $ title post
+  text " "
+  el "date" $ text $ pack $ show $ date post
 
 post :: String -> Widget x ()
 post k = case find (\p -> key p == k) posts of
