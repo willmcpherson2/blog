@@ -27,12 +27,11 @@ bodyElement = do
 
 header :: Widget x ()
 header = elClass "div" "header" $ do
-  el "h2" $ elAttr "a" ("href" =: "/") $ text "willmcpherson2"
+  elClass "h2" "button-home" $ elAttr "a" ("href" =: "/") $ text "willmcpherson2"
   el "nav" $ do
     elAttr "a" ("href" =: "/posts") $ text "blog"
     text " "
     elAttr "a" ("href" =: "/tulip") $ text "tulip"
-  el "hr" blank
 
 route :: String -> Widget x ()
 route pathname = case filter (not . null) $ splitOn "/" pathname of

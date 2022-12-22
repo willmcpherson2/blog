@@ -113,6 +113,10 @@ code {
   background-color: var(--crust);
 }
 
+.button-home {
+  margin-bottom: 0;
+}
+
 .header {
   margin-bottom: 2em;
 }
