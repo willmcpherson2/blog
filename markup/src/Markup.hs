@@ -5,13 +5,13 @@ import Data.List (stripPrefix)
 import Data.Maybe (fromMaybe)
 import Data.Text (pack)
 import Language.Haskell.TH.Quote (QuasiQuoter (..))
-import Language.Haskell.TH.Syntax (Exp (..), Lit (..), Stmt (..))
+import Language.Haskell.TH.Syntax (Exp (..), Q)
 import Reflex.Dom (blank, el, elAttr, text, (=:))
 
 m :: QuasiQuoter
 m =
   QuasiQuoter
-    { quoteExp = pure . compile,
+    { quoteExp = compile,
       quotePat = undefined,
       quoteType = undefined,
       quoteDec = undefined
@@ -29,7 +29,7 @@ data Style
   | Italics
   | Link
 
-compile :: String -> Exp
+compile :: String -> Q Exp
 compile = generateTop . parseTop
 
 parseTop :: String -> [Tree]
@@ -95,31 +95,23 @@ concatLeafs = \case
   t : ts -> t : concatLeafs ts
   ts -> ts
 
-generateTop :: [Tree] -> Exp
+generateTop :: [Tree] -> Q Exp
 generateTop = \case
-  [] -> VarE 'blank
-  ts -> DoE $ map (NoBindS . generate) ts
+  [] -> [|blank|]
+  [t] -> generate t
+  t : ts -> [|$(generate t) >> $(generateTop ts)|]
 
-generate :: Tree -> Exp
+generate :: Tree -> Q Exp
 generate = \case
-  Leaf s -> AppE (VarE 'text) (AppE (VarE 'pack) (LitE $ StringL s))
+  Leaf s -> [|text $ pack s|]
   Branch style ts -> case style of
     Plain -> generateTop ts
-    Heading -> elExp "h2" ts
-    Subheading -> elExp "h3" ts
-    Paragraph -> elExp "p" ts
-    CodeBlock -> AppE (AppE (VarE 'el) (LitE $ StringL "pre")) (elExp "code" ts)
-    Code -> elExp "code" ts
-    Italics -> elExp "i" ts
+    Heading -> [|el "h1" $(generateTop ts)|]
+    Subheading -> [|el "h2" $(generateTop ts)|]
+    Paragraph -> [|el "p" $(generateTop ts)|]
+    CodeBlock -> [|el "pre" $ el "code" $(generateTop ts)|]
+    Code -> [|el "code" $(generateTop ts)|]
+    Italics -> [|el "i" $(generateTop ts)|]
     Link -> case ts of
-      [caption, Leaf link] ->
-        AppE
-          ( AppE
-              (AppE (VarE 'elAttr) (LitE $ StringL "a"))
-              (UInfixE (LitE $ StringL "href") (VarE '(=:)) (LitE $ StringL link))
-          )
-          (generate caption)
+      [caption, Leaf link] -> [|elAttr "a" ("href" =: link) $(generate caption)|]
       _ -> undefined
-
-elExp :: String -> [Tree] -> Exp
-elExp tag ts = AppE (AppE (VarE 'el) (LitE $ StringL tag)) (generateTop ts)
