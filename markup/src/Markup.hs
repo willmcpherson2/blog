@@ -1,12 +1,16 @@
 module Markup where
 
-import Data.Foldable (asum)
-import Data.List (stripPrefix)
-import Data.Maybe (fromMaybe)
+import Combinators
+import Control.Monad (guard)
+import Control.Monad.Trans.Class (MonadTrans (lift))
+import Control.Monad.Trans.Maybe (MaybeT (MaybeT, runMaybeT))
+import Data.List.NonEmpty (NonEmpty)
 import Data.Text (pack)
 import Language.Haskell.TH.Quote (QuasiQuoter (..))
 import Language.Haskell.TH.Syntax (Exp (..), Q)
+import Parser
 import Reflex.Dom (blank, el, elAttr, elClass, text, (=:))
+import Stream (Stream (takeToken))
 
 m :: QuasiQuoter
 m =
@@ -30,70 +34,72 @@ data Style
   | Link
 
 compile :: String -> Q Exp
-compile = generateTop . parseTop
+compile = generateTop . parse document
 
-parseTop :: String -> [Tree]
-parseTop s = case parse s of
-  (rest, Just b@Branch {}) -> case rest of
-    [] -> [b]
-    rest -> b : parseTop rest
-  (rest, _) -> case rest of
-    [] -> []
-    rest -> parseTop rest
+document :: Parser String [Tree]
+document = do
+  ts <- star tree
+  pure $ concatLeafs ts
 
-parse :: String -> (String, Maybe Tree)
-parse = \case
-  [] -> ([], Nothing)
-  ']' : rest -> (rest, Nothing)
-  ch : rest ->
-    let (rest', style) = parseStyle (ch : rest)
-     in case parseOpen rest' of
-          Nothing -> (rest, Just $ Leaf [ch])
-          Just (rest'', []) -> Just . Branch style <$> branch rest''
-          Just (rest'', escape) ->
-            Just . Branch style . (: []) . Leaf <$> escapeBranch escape rest''
+tree :: Parser String (Maybe Tree)
+tree = branch <<|>> leaf
 
-parseStyle :: String -> (String, Style)
-parseStyle s =
-  fromMaybe (s, Plain) $
-    asum $
-      map
-        (\(keyword, style) -> (,style) <$> stripPrefix keyword s)
-        [ ("##", Subheading),
-          ("#", Heading),
-          ("p", Paragraph),
-          ("``", CodeBlock),
-          ("`", Code),
-          ("*", Italics),
-          ("@", Link)
-        ]
-
-parseOpen :: String -> Maybe (String, String)
-parseOpen s = case span (== '|') s of
-  (escape, '[' : rest) -> Just (rest, escape)
-  _ -> Nothing
-
-escapeBranch :: String -> String -> (String, String)
-escapeBranch escape = \case
-  [] -> ([], [])
-  ch : rest -> case ch of
-    ']' -> case stripPrefix escape rest of
-      Just rest -> (rest, [])
-      Nothing -> (ch :) <$> escapeBranch escape rest
-    ch -> (ch :) <$> escapeBranch escape rest
-
-branch :: String -> (String, [Tree])
-branch = fmap concatLeafs . go
-  where
-    go s = case parse s of
-      (rest, Nothing) -> (rest, [])
-      (rest, Just t) -> (t :) <$> go rest
+branch :: Parser String (Maybe Tree)
+branch = runMaybeT $ do
+  st <- lift style
+  e <- lift escaper
+  _ <- MaybeT open
+  case e of
+    Just e -> do
+      s <- lift $ takeToken `uptoIncluding` closeRaw e
+      pure $ Branch st [Leaf s]
+    Nothing -> do
+      ts <- lift $ tree `uptoIncluding` close
+      pure $ Branch st (concatLeafs ts)
 
 concatLeafs :: [Tree] -> [Tree]
-concatLeafs = \case
-  Leaf l : Leaf r : ts -> concatLeafs $ Leaf (l <> r) : ts
-  t : ts -> t : concatLeafs ts
-  ts -> ts
+concatLeafs = foldr go []
+  where
+    go t ts =
+      case (t, ts) of
+        (Leaf l, Leaf r : ts) -> Leaf (l <> r) : ts
+        _ -> t : ts
+
+leaf :: Parser String (Maybe Tree)
+leaf = runMaybeT $ do
+  t <- MaybeT takeToken
+  pure $ Leaf [t]
+
+style :: Parser String Style
+style =
+  keyword "##" Subheading
+    <<|>> keyword "#" Heading
+    <<|>> keyword "p" Paragraph
+    <<|>> keyword "``" CodeBlock
+    <<|>> keyword "`" Code
+    <<|>> keyword "*" Italics
+    <<|>> keyword "@" Link
+    |>> pure Plain
+
+keyword :: String -> Style -> Parser String (Maybe Style)
+keyword s x = runMaybeT $ do
+  _ <- MaybeT $ try $ matchesM s
+  pure x
+
+closeRaw :: NonEmpty Char -> Parser String (Maybe ())
+closeRaw e = runMaybeT $ do
+  _ <- MaybeT close
+  e' <- MaybeT escaper
+  guard $ e == e'
+
+escaper :: Parser String (Maybe (NonEmpty Char))
+escaper = plus $ try $ matchM '|'
+
+open :: Parser String (Maybe Char)
+open = try $ matchM '['
+
+close :: Parser String (Maybe Char)
+close = try $ matchM ']'
 
 generateTop :: [Tree] -> Q Exp
 generateTop = \case

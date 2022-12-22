@@ -20,3 +20,5 @@ library
     , text
     , reflex-dom
     , template-haskell
+    , parss
+    , transformers
