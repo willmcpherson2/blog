@@ -6,7 +6,7 @@ import Data.Maybe (fromMaybe)
 import Data.Text (pack)
 import Language.Haskell.TH.Quote (QuasiQuoter (..))
 import Language.Haskell.TH.Syntax (Exp (..), Q)
-import Reflex.Dom (blank, el, elAttr, text, (=:))
+import Reflex.Dom (blank, el, elAttr, elClass, text, (=:))
 
 m :: QuasiQuoter
 m =
@@ -109,8 +109,8 @@ generate = \case
     Heading -> [|el "h1" $(generateTop ts)|]
     Subheading -> [|el "h2" $(generateTop ts)|]
     Paragraph -> [|el "p" $(generateTop ts)|]
-    CodeBlock -> [|el "pre" $ el "code" $(generateTop ts)|]
-    Code -> [|el "code" $(generateTop ts)|]
+    CodeBlock -> [|el "pre" $ elClass "code" "code-block" $(generateTop ts)|]
+    Code -> [|elClass "code" "code-inline" $(generateTop ts)|]
     Italics -> [|el "i" $(generateTop ts)|]
     Link -> case ts of
       [caption, Leaf link] -> [|elAttr "a" ("href" =: link) $(generate caption)|]

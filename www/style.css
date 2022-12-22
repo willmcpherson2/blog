@@ -93,6 +93,26 @@ code {
   background-color: var(--crust);
 }
 
+.code-inline {
+  padding-left: 0.5ch;
+  padding-right: 0.5ch;
+}
+
+.code-block {
+  display: block;
+  padding: 1ch;
+  overflow: scroll;
+}
+
+.code-input {
+  box-sizing: border-box;
+  min-width: 100%;
+  max-width: 100%;
+  font-family: monospace, monospace;
+  color: var(--text);
+  background-color: var(--crust);
+}
+
 .header {
   margin-bottom: 2em;
 }

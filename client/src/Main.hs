@@ -64,10 +64,10 @@ post k = case find (\p -> key p == k) posts of
 
 tulip :: Widget x ()
 tulip = do
-  area <- textAreaElement def
+  area <- textAreaElement $ def & textAreaElementConfig_elementConfig . elementConfig_initialAttributes .~ "class" =: "code-input"
   let inputEvent = _textAreaElement_input area
   output <- foldDyn (\source _ -> pack $ getResult $ unpack source) "" inputEvent
-  el "pre" $ dynText output
+  el "pre" $ elClass "code" "code-block" $ dynText output
 
 notFound :: Widget x ()
 notFound = text "page not found!"
