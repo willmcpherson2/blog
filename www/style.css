@@ -60,6 +60,13 @@
   }
 }
 
+@media (min-width: 80ch) {
+  body {
+    margin: auto;
+    width: 80ch;
+  }
+}
+
 body {
   background-color: var(--base);
   color: var(--text);
