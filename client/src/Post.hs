@@ -1,7 +1,6 @@
 module Post (previews, post) where
 
 import Data.Time (Day, fromGregorian)
-import Reflex.Dom (Widget)
 import qualified Posts.HelloWorld
 import Data.List (find, sortOn)
 import Data.Text (pack)
