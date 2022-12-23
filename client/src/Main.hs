@@ -9,6 +9,7 @@ import JSDOM.Generated.Location (getPathname)
 import Post (posts, Post (..))
 import Reflex.Dom
 import Tulip (getResult)
+import Markup.Compile.Widget (compile)
 
 main :: IO ()
 main = mainWidgetWithHead headElement bodyElement
@@ -32,6 +33,8 @@ header = elClass "div" "header" $ do
     elAttr "a" ("href" =: "/posts") $ text "blog"
     text " "
     elAttr "a" ("href" =: "/tulip") $ text "tulip"
+    text " "
+    elAttr "a" ("href" =: "/markup") $ text "markup"
 
 route :: String -> Widget x ()
 route pathname = case filter (not . null) $ splitOn "/" pathname of
@@ -39,6 +42,7 @@ route pathname = case filter (not . null) $ splitOn "/" pathname of
   ["posts"] -> previews
   ["posts", name] -> post name
   ["tulip"] -> tulip
+  ["markup"] -> markup
   _ -> notFound
 
 index :: Widget x ()
@@ -67,6 +71,13 @@ tulip = do
   let inputEvent = _textAreaElement_input area
   output <- foldDyn (\source _ -> pack $ getResult $ unpack source) "" inputEvent
   el "pre" $ elClass "code" "code-block" $ dynText output
+
+markup :: Widget x ()
+markup = do
+  area <- textAreaElement $ def & textAreaElementConfig_elementConfig . elementConfig_initialAttributes .~ "class" =: "code-input"
+  let inputEvent = _textAreaElement_input area
+  output <- foldDyn (\source _ -> compile $ unpack source) blank inputEvent
+  dyn_ output
 
 notFound :: Widget x ()
 notFound = text "page not found!"

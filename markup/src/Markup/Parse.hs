@@ -1,25 +1,13 @@
-module Markup where
+module Markup.Parse (Tree (..), Style (..), parse) where
 
 import Combinators
 import Control.Monad (guard)
 import Control.Monad.Trans.Class (MonadTrans (lift))
 import Control.Monad.Trans.Maybe (MaybeT (MaybeT, runMaybeT))
 import Data.List.NonEmpty (NonEmpty)
-import Data.Text (pack)
-import Language.Haskell.TH.Quote (QuasiQuoter (..))
-import Language.Haskell.TH.Syntax (Exp (..), Q)
-import Parser
-import Reflex.Dom (blank, el, elAttr, elClass, text, (=:))
+import Parser (Parser)
+import qualified Parser as P
 import Stream (Stream (takeToken))
-
-m :: QuasiQuoter
-m =
-  QuasiQuoter
-    { quoteExp = compile,
-      quotePat = undefined,
-      quoteType = undefined,
-      quoteDec = undefined
-    }
 
 data Tree = Leaf String | Branch Style [Tree]
 
@@ -35,8 +23,8 @@ data Style
 
 data Escaper = BracketEscape (NonEmpty Char) | LineEscape
 
-compile :: String -> Q Exp
-compile = generateTop . parse document
+parse :: String -> [Tree]
+parse = P.parse document
 
 document :: Parser String [Tree]
 document = do
@@ -122,24 +110,3 @@ open = try $ matchM '['
 
 close :: Parser String (Maybe Char)
 close = try $ matchM ']'
-
-generateTop :: [Tree] -> Q Exp
-generateTop = \case
-  [] -> [|blank|]
-  [t] -> generate t
-  t : ts -> [|$(generate t) >> $(generateTop ts)|]
-
-generate :: Tree -> Q Exp
-generate = \case
-  Leaf s -> [|text $ pack s|]
-  Branch style ts -> case style of
-    Plain -> generateTop ts
-    Heading -> [|el "h2" $(generateTop ts)|]
-    Subheading -> [|el "h3" $(generateTop ts)|]
-    Paragraph -> [|el "p" $(generateTop ts)|]
-    CodeBlock -> [|el "pre" $ elClass "code" "code-block" $(generateTop ts)|]
-    Code -> [|elClass "code" "code-inline" $(generateTop ts)|]
-    Italics -> [|el "i" $(generateTop ts)|]
-    Link -> case ts of
-      [caption, Leaf link] -> [|elAttr "a" ("href" =: link) $(generate caption)|]
-      _ -> undefined

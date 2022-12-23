@@ -1,7 +1,7 @@
 module Post.HelloWorld where
 
 import Reflex.Dom (Widget)
-import Markup (m)
+import Markup.M (m)
 
 post :: Widget x ()
 post = [m|
