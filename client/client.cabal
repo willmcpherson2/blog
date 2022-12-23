@@ -40,3 +40,4 @@ executable client
     , split
     , time
     , tulip
+    , raw-strings-qq
