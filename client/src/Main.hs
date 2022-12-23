@@ -18,7 +18,7 @@ main = mainWidgetWithHead headElement bodyElement
 headElement :: Widget x ()
 headElement = do
   el "title" $ text "willmcpherson2"
-  elAttr "link" ("rel" =: "stylesheet" <> "href" =: "/style.css") $ text "blog"
+  elAttr "link" ("rel" =: "stylesheet" <> "href" =: "/style.css") blank
 
 bodyElement :: Widget x ()
 bodyElement = do
@@ -31,7 +31,7 @@ header :: Widget x ()
 header = elClass "div" "header" $ do
   elClass "h2" "button-home" $ elAttr "a" ("href" =: "/") $ text "willmcpherson2"
   el "nav" $ do
-    elAttr "a" ("href" =: "/posts") $ text "blog"
+    elAttr "a" ("href" =: "/posts") $ text "posts"
     text " "
     elAttr "a" ("href" =: "/tulip") $ text "tulip"
     text " "
