@@ -113,6 +113,13 @@ code {
   background-color: var(--crust);
 }
 
+.box {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  padding: 1em;
+  border: 2px solid var(--crust);
+}
+
 .button-home {
   margin-bottom: 0;
 }

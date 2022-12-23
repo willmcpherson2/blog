@@ -77,7 +77,7 @@ markup = do
   area <- textAreaElement $ def & textAreaElementConfig_elementConfig . elementConfig_initialAttributes .~ "class" =: "code-input"
   let inputEvent = _textAreaElement_input area
   output <- foldDyn (\source _ -> compile $ unpack source) blank inputEvent
-  dyn_ output
+  elClass "div" "box" $ dyn_ output
 
 notFound :: Widget x ()
 notFound = text "page not found!"
