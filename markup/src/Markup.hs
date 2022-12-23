@@ -49,8 +49,7 @@ tree = branch <<|>> leaf
 branch :: Parser String (Maybe Tree)
 branch = runMaybeT $ do
   st <- lift style
-  e <- lift escaper
-  case e of
+  lift escaper >>= \case
     Just (BracketEscape e) -> do
       _ <- MaybeT open
       s <- lift $ takeToken `uptoIncluding` closeRaw e
@@ -63,6 +62,24 @@ branch = runMaybeT $ do
       ts <- lift $ tree `uptoIncluding` close
       pure $ Branch st (concatLeafs ts)
 
+leaf :: Parser String (Maybe Tree)
+leaf = runMaybeT $ do
+  t <- MaybeT takeToken
+  pure $ Leaf [t]
+
+closeRaw :: NonEmpty Char -> Parser String (Maybe ())
+closeRaw e = runMaybeT $ do
+  _ <- MaybeT close
+  e' <- MaybeT bracketEscape
+  guard $ e == e'
+
+rawLines :: Parser String [String]
+rawLines = do
+  line <- takeToken `upto` matchM '\n'
+  lineEscape >>= \case
+    Just {} -> (line :) <$> rawLines
+    Nothing -> pure [line]
+
 concatLeafs :: [Tree] -> [Tree]
 concatLeafs = foldr go []
   where
@@ -70,11 +87,6 @@ concatLeafs = foldr go []
       case (t, ts) of
         (Leaf l, Leaf r : ts) -> Leaf (l <> r) : ts
         _ -> t : ts
-
-leaf :: Parser String (Maybe Tree)
-leaf = runMaybeT $ do
-  t <- MaybeT takeToken
-  pure $ Leaf [t]
 
 style :: Parser String Style
 style =
@@ -91,19 +103,6 @@ keyword :: String -> Style -> Parser String (Maybe Style)
 keyword s x = runMaybeT $ do
   _ <- MaybeT $ try $ matchesM s
   pure x
-
-closeRaw :: NonEmpty Char -> Parser String (Maybe ())
-closeRaw e = runMaybeT $ do
-  _ <- MaybeT close
-  e' <- MaybeT bracketEscape
-  guard $ e == e'
-
-rawLines :: Parser String [String]
-rawLines = do
-  line <- takeToken `upto` matchM '\n'
-  lineEscape >>= \case
-    Just {} -> (line :) <$> rawLines
-    Nothing -> pure [line]
 
 escaper :: Parser String (Maybe Escaper)
 escaper =
