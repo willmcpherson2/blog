@@ -33,6 +33,8 @@ data Style
   | Italics
   | Link
 
+data Escaper = BracketEscape (NonEmpty Char) | LineEscape
+
 compile :: String -> Q Exp
 compile = generateTop . parse document
 
@@ -48,12 +50,16 @@ branch :: Parser String (Maybe Tree)
 branch = runMaybeT $ do
   st <- lift style
   e <- lift escaper
-  _ <- MaybeT open
   case e of
-    Just e -> do
+    Just (BracketEscape e) -> do
+      _ <- MaybeT open
       s <- lift $ takeToken `uptoIncluding` closeRaw e
       pure $ Branch st [Leaf s]
+    Just LineEscape -> do
+      lines <- lift rawLines
+      pure $ Branch st [Leaf $ unlines lines]
     Nothing -> do
+      _ <- MaybeT open
       ts <- lift $ tree `uptoIncluding` close
       pure $ Branch st (concatLeafs ts)
 
@@ -89,11 +95,28 @@ keyword s x = runMaybeT $ do
 closeRaw :: NonEmpty Char -> Parser String (Maybe ())
 closeRaw e = runMaybeT $ do
   _ <- MaybeT close
-  e' <- MaybeT escaper
+  e' <- MaybeT bracketEscape
   guard $ e == e'
 
-escaper :: Parser String (Maybe (NonEmpty Char))
-escaper = plus $ try $ matchM '|'
+rawLines :: Parser String [String]
+rawLines = do
+  line <- takeToken `upto` matchM '\n'
+  lineEscape >>= \case
+    Just {} -> (line :) <$> rawLines
+    Nothing -> pure [line]
+
+escaper :: Parser String (Maybe Escaper)
+escaper =
+  runMaybeT (BracketEscape <$> MaybeT bracketEscape)
+    <<|>> runMaybeT (LineEscape <$ MaybeT lineEscape)
+
+bracketEscape :: Parser String (Maybe (NonEmpty Char))
+bracketEscape = plus $ try $ matchM '|'
+
+lineEscape :: Parser String (Maybe ())
+lineEscape = runMaybeT $ do
+  _ <- MaybeT $ try $ matchesM "\n|"
+  pure ()
 
 open :: Parser String (Maybe Char)
 open = try $ matchM '['

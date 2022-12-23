@@ -108,30 +108,28 @@ cool new library that encodes your routes at the type level. I stuck to the
 basics:
 ]
 
-``[
-build-depends:
-  base
-  , directory
-  , bytestring
-  , text
-  , warp
-  , wai
-  , http-types
-]
+``
+|build-depends:
+|  base
+|  , directory
+|  , bytestring
+|  , text
+|  , warp
+|  , wai
+|  , http-types
 
 p[
 The whole gist of the server is this case expression:
 ]
 
-``|[
-router :: Method -> Path -> IO (Status, Content)
-router method path = case (method, path) of
-  ("GET", []) -> index "posts"
-  ("GET", ["posts"]) -> index "posts"
-  ("GET", ["posts", title]) -> serveFilePath $ "posts/" ++ unpack title
-  ("GET", ["www", "style.css"]) -> serveRaw "www/style.css"
-  _ -> notFound
-]|
+``
+|router :: Method -> Path -> IO (Status, Content)
+|router method path = case (method, path) of
+|  ("GET", []) -> index "posts"
+|  ("GET", ["posts"]) -> index "posts"
+|  ("GET", ["posts", title]) -> serveFilePath $ "posts/" ++ unpack title
+|  ("GET", ["www", "style.css"]) -> serveRaw "www/style.css"
+|  _ -> notFound
 
 p[
 You can't write a white paper about it, but it works.
@@ -152,25 +150,24 @@ compilers? This server also contains a little markdown compiler. Here's the
 language definition ripped right out of the source code:
 ]
 
-``|[
-blockParsers :: [ParseMaybe]
-blockParsers =
-  [ mkParser Rule "---" "\n"
-  , mkParser Title "# " "\n"
-  , mkParser Heading "## " "\n"
-  , mkParser Subheading "### " "\n"
-  , mkParser CodeBlock "``\n" "\n``\n"
-  , mkParser Paragraph "" "\n\n"
-  ]
-
-elementParsers :: [ParseMaybe]
-elementParsers =
-  [ mkParser Bold "**" "**"
-  , mkParser Italics "*" "*"
-  , mkParser CodeInline "`" "`"
-  , mkParser Link "[" "]"
-  ]
-]|
+``
+|blockParsers :: [ParseMaybe]
+|blockParsers =
+|  [ mkParser Rule "---" "\n"
+|  , mkParser Title "# " "\n"
+|  , mkParser Heading "## " "\n"
+|  , mkParser Subheading "### " "\n"
+|  , mkParser CodeBlock "``\n" "\n``\n"
+|  , mkParser Paragraph "" "\n\n"
+|  ]
+|
+|elementParsers :: [ParseMaybe]
+|elementParsers =
+|  [ mkParser Bold "**" "**"
+|  , mkParser Italics "*" "*"
+|  , mkParser CodeInline "`" "`"
+|  , mkParser Link "[" "]"
+|  ]
 
 p[
 You can see how it's mostly just markdown with some quirks. The code generator
