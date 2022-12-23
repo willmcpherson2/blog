@@ -28,7 +28,10 @@ executable client
       -O0
   other-modules:
     Post
-    Post.HelloWorld
+    Posts.HelloWorld
+    NotFound
+    TulipDemo
+    MarkupDemo
   build-depends:
     base
     , markup
