@@ -134,8 +134,8 @@ generate = \case
   Leaf s -> [|text $ pack s|]
   Branch style ts -> case style of
     Plain -> generateTop ts
-    Heading -> [|el "h1" $(generateTop ts)|]
-    Subheading -> [|el "h2" $(generateTop ts)|]
+    Heading -> [|el "h2" $(generateTop ts)|]
+    Subheading -> [|el "h3" $(generateTop ts)|]
     Paragraph -> [|el "p" $(generateTop ts)|]
     CodeBlock -> [|el "pre" $ elClass "code" "code-block" $(generateTop ts)|]
     Code -> [|elClass "code" "code-inline" $(generateTop ts)|]
