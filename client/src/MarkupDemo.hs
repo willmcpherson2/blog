@@ -2,11 +2,13 @@ module MarkupDemo where
 
 import Data.Text (Text, unpack)
 import Markup.Compile.Widget (compile)
+import Markup.M (m)
 import Reflex.Dom
 import Text.RawString.QQ
 
 markup :: Widget x ()
 markup = do
+  intro
   area <-
     textAreaElement $
       def
@@ -16,6 +18,18 @@ markup = do
   let handle = compile . unpack
   output <- foldDyn (\source _ -> handle source) (handle markupExample) inputEvent
   elClass "div" "box" $ dyn_ output
+
+intro :: Widget x ()
+intro =
+  [m|
+#[Live Markup Editor]
+
+p[
+@[
+[github.com/willmcpherson2/willmcpherson2.com/tree/main/markup]
+[https://github.com/willmcpherson2/willmcpherson2.com/tree/main/markup]]
+]
+|]
 
 markupExample :: Text
 markupExample =
