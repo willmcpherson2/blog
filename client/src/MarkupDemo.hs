@@ -29,6 +29,10 @@ p[
 [github.com/willmcpherson2/willmcpherson2.com/tree/main/markup]
 [https://github.com/willmcpherson2/willmcpherson2.com/tree/main/markup]]
 ]
+
+p[
+This is the markup language used by this website.
+]
 |]
 
 markupExample :: Text
