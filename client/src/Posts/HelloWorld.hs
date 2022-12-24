@@ -1,10 +1,11 @@
 module Posts.HelloWorld where
 
-import Reflex.Dom (Widget)
 import Markup.M (m)
+import Reflex.Dom (Widget)
 
 post :: Widget x ()
-post = [m|
+post =
+  [m|
 
 p[
 I've finally bit the bullet and bought a domain and a real host. I have some

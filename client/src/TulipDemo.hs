@@ -2,8 +2,8 @@ module TulipDemo where
 
 import Data.Text (Text, pack, unpack)
 import Reflex.Dom
-import Tulip (getResult)
 import Text.RawString.QQ
+import Tulip (getResult)
 
 tulip :: Widget x ()
 tulip = do
@@ -18,7 +18,8 @@ tulip = do
   el "pre" $ elClass "code" "code-block" $ dynText output
 
 tulipExample :: Text
-tulipExample = [r|(true [x y x])
+tulipExample =
+  [r|(true [x y x])
 (false [x y y])
 (not [x (x false true)])
 (main (not true))|]

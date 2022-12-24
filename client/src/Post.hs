@@ -1,11 +1,11 @@
 module Post (previews, post) where
 
-import Data.Time (Day, fromGregorian)
-import qualified Posts.HelloWorld
 import Data.List (find, sortOn)
 import Data.Text (pack)
-import Reflex.Dom
+import Data.Time (Day, fromGregorian)
 import NotFound
+import qualified Posts.HelloWorld
+import Reflex.Dom
 
 data Post = Post
   { key :: String,

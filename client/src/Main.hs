@@ -4,11 +4,11 @@ import Data.List.Split (splitOn)
 import JSDOM (currentWindow)
 import JSDOM.Custom.Window (getLocation)
 import JSDOM.Generated.Location (getPathname)
-import Post (previews, post)
-import Reflex.Dom
-import NotFound
-import TulipDemo
 import MarkupDemo
+import NotFound
+import Post (post, previews)
+import Reflex.Dom
+import TulipDemo
 
 main :: IO ()
 main = mainWidgetWithHead headElement bodyElement

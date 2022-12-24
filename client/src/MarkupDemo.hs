@@ -1,8 +1,8 @@
 module MarkupDemo where
 
 import Data.Text (Text, unpack)
-import Reflex.Dom
 import Markup.Compile.Widget (compile)
+import Reflex.Dom
 import Text.RawString.QQ
 
 markup :: Widget x ()
@@ -18,7 +18,8 @@ markup = do
   elClass "div" "box" $ dyn_ output
 
 markupExample :: Text
-markupExample = [r|Text has no style by default.
+markupExample =
+  [r|Text has no style by default.
 Styles are applied using brackets.
 Here are the available styles:
 
