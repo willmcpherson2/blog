@@ -24,6 +24,12 @@ generate = \case
     CodeBlock -> el "pre" $ elClass "code" "code-block" (generateTop ts)
     Code -> elClass "code" "code-inline" (generateTop ts)
     Italics -> el "i" (generateTop ts)
-    Link -> case ts of
-      [caption, Leaf link] -> elAttr "a" ("href" =: pack link) (generate caption)
-      _ -> undefined
+    Link -> case reverse ts of
+      [] -> elAttr "a" ("href" =: "") blank
+      [link] -> elAttr "a" ("href" =: pack (inner link)) (generate link)
+      link : caption -> elAttr "a" ("href" =: pack (inner link)) (generateTop $ reverse caption)
+
+inner :: Tree -> String
+inner = \case
+  Leaf s -> s
+  Branch _ ts -> concatMap inner ts
