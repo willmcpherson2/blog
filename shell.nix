@@ -6,7 +6,7 @@ let
     { };
   haskell-language-server = (import
     (builtins.fetchTarball {
-      url = "https://github.com/NixOS/nixpkgs/archive/bed08131cd29a85f19716d9351940bdc34834492.tar.gz";
+      url = "https://github.com/NixOS/nixpkgs/archive/0756b8a7bf25e7a5b4fbfa578e95a28cb5ef6380.tar.gz";
     })
     { }).haskell-language-server.override { supportedGhcVersions = [ "865" ]; };
 in
