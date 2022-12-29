@@ -8,173 +8,117 @@ post =
   [m|
 
 p[
-I've finally bit the bullet and bought a domain and a real host. I have some
-sort of irrational fear of monthly subscriptions that has prevented me from
-subscribing to *[anything] until now. "The cost of a cup of coffee each month"
-seems to have the opposite effect on me. Marketing targeted towards me should
-instead say something like "0.1% of your salary".
+This post is an overview of how I made this website. The source code can be found here:
+]
+
+p[@[[github.com/willmcpherson2/willmcpherson2.com]https://github.com/willmcpherson2/willmcpherson2.com]]
+
+#[The Stack]
+
+p[@[[Reflex]https://github.com/reflex-frp/reflex] is a Haskell library for functional reactive programming.]
+
+p[@[[Reflex Platform]https://github.com/reflex-frp/reflex-platform] is a set of Nix packages and expressions for building cross-platform Reflex applications.]
+
+p[
+Reflex Platform provides @[[GHC]https://gitlab.haskell.org/ghc/ghc] and @[[GHCJS]https://github.com/ghcjs/ghcjs] for compiling Haskell to native code and JavaScript respectively.
+Using one language for your website is great, but using two compilers is a bit tricky.
+Fortunately, @[[GHC now has its own JavaScript backend]https://engineering.iog.io/2022-12-13-ghc-js-backend-merged], so this will improve over time.
 ]
 
 p[
-This site is being hosted on @[[Heroku]https://heroku.com] as a Docker container
-containing a small Haskell server. In this post I'll discuss each technology
-and make some recommendations.
-]
-
-#[Heroku]
-
-p[
-I used Heroku throughout my undergrad course and have always enjoyed using it.
-For this site I originally tried to use DigitalOcean because it was recommended
-and cheap, but found it less intuitive to use. I don't want to definitively say
-that it's a worse service, but I will say that I gave up on it even after
-spending $5.
+Reflex Platform provides deterministic Nix builds, but also incremental builds via @[[Cabal]https://github.com/haskell/cabal].
 ]
 
 p[
-I also considered using GitHub pages, but I wanted this to be a programming
-project rather than just a static blog.
+To get basic hot-reloading, I just used @[[entr]https://github.com/eradman/entr] to `[cabal build] the frontend and `[cabal run] the server.
 ]
 
-p[
-Heroku has a pretty generous free-tier which only has one noticeable limitation
-for small-scale projects, which is that your container sleeps after 30 minutes
-of inactivity and can therefore take a few seconds to warm up. If you need to
-demo for your teacher or boss, just visit the site beforehand and it'll be
-ready to go. A free-tier like this is really indispensable for those who need
-to shop around and consider their options.
-]
-
-p[
-Heroku also has very decent documentation and interfaces, both of which are
-necessary if you're going to spend a day fiddling around with settings and
-configs.
-]
-
-p[
-Interacting with Heroku is pretty KISS. Need to containerise? Just add a
-@[[Dockerfile]https://github.com/willmcpherson2/blog/blob/main/Dockerfile] and
-@[[3 lines of YAML]https://github.com/willmcpherson2/blog/blob/main/heroku.yml]
-and run `[heroku stack:set container]. Want to use a regular shell script
-instead? Just link to a git repository containing the script from your
-@[[app.json]https://github.com/willmcpherson2/notcord/blob/main/app.json]. Time
-to push? Just `[git push heroku].
-]
-
-#[Docker]
-
-p[
-I wanted to use Docker because there's an @[[official Haskell
-image]https://hub.docker.com/_/haskell] which means I can totally skip the
-toolchain installation. I ended up being able to copy-and-paste one of their
-Dockerfile examples and only had to change some names. Then it's just that bit
-of YAML and that `[heroku stack:set container] thing.
-]
-
-p[
-That's about 1 minute of actual typing, but there were multiple hours trying to
-get DigitalOcean to work, switching to Heroku in desperation and then finally
-figuring out the right 13 lines of configuration. I had plenty of time to be
-jaded and think about "the state of computing". Instead of that pessimistic
-rant, I will try to give a more cool-headed state of the union.
-]
-
-##[State of the Union]
-
-p[
-Platform agnosticism is not really happening. The primary reason I had to spend
-hours deploying a simple blog is that I'm using an ARM machine. We really
-haven't successfully abstracted over the ISA layer. Docker on my ARM machine
-doesn't give the same results as Docker on an x86 cloud machine, and while I
-can use an x86 Docker image on my ARM machine, it will just produce a third set
-of results. I don't expect Docker to solve this problem, obviously, but it has
-become the de facto solution and is clearly more of a bandaid.
-]
-
-p[
-What's the opposite of platform agnosticism? Platform theism? I think it's
-worth considering as an alternative solution. The easiest way to write a cloud
-application is to just us an Ubuntu machine, since that's what's running on the
-cloud. The easiest (only?) way to write a macOS application is to just use
-macOS.
-]
-
-#[Haskell]
-
-##[For Servers]
-
-p[
-Web servers in Haskell are great. And I don't even have to tell you about some
-cool new library that encodes your routes at the type level. I stuck to the
-basics:
-]
+#[Usage]
 
 ``
-|build-depends:
-|  base
-|  , directory
-|  , bytestring
-|  , text
-|  , warp
-|  , wai
-|  , http-types
+|# Deterministic, optimised build
+|nix-build
+|
+|# Development environment with GHCJS
+|nix-shell -A shells.ghcjs
+|# Rebuild the fronted on change
+|client-reload 
+|
+|# Development environment with GHC
+|nix-shell -A shells.ghc
+|# Restart the server on change
+|server-reload
+
+#[Code]
 
 p[
-The whole gist of the server is this case expression:
+We have server-side routing which just provides resources:
 ]
 
+p[`[*[server/src/Main.hs]]]
+
 ``
-|router :: Method -> Path -> IO (Status, Content)
-|router method path = case (method, path) of
-|  ("GET", []) -> index "posts"
-|  ("GET", ["posts"]) -> index "posts"
-|  ("GET", ["posts", title]) -> serveFilePath $ "posts/" ++ unpack title
-|  ("GET", ["www", "style.css"]) -> serveRaw "www/style.css"
+|route :: String -> [String] -> Response
+|route dir = \case
+|  ["style.css"] -> res dir "style.css" "text/css"
+|  ["all.js"] -> res dir "all.js" "text/javascript"
+|  ["favicon.ico"] -> res dir "favicon.ico" "image/x-icon"
+|  _ -> res dir "/index.html" "text/html"
+
+p[
+Then we have client-side routing based on `[window.location.pathname]:
+]
+
+p[`[*[client/src/Main.hs]]]
+
+``
+|route :: String -> Widget x ()
+|route pathname = case filter (not . null) $ splitOn "/" pathname of
+|  [] -> index
+|  ["posts"] -> previews
+|  ["posts", name] -> post name
+|  ["tulip"] -> tulip
+|  ["markup"] -> markup
 |  _ -> notFound
 
 p[
-You can't write a white paper about it, but it works.
+We are doing something quite weird which is that we have a custom markup language available as a quasiquoter.
+This post was actually written in a Haskell source file!
+You can try out the @[[live editor]/markup].
+]
+
+#[The Good]
+
+p[
+Nix really shines in these situations where you want to coordinate a complicated set of tools.
+It goes beyond package management and is really more of a general tool for software configuration.
+Also, it provides a means of abstraction, which is how Reflex Platform is able to provide the @[`[project]https://github.com/reflex-frp/reflex-platform/blob/master/project/default.nix] expression that is much more than just a package.
 ]
 
 p[
-I'm definitely one of those "Haskell is the best imperative language" guys.
-Laziness and purity interact surprisingly well with side-effects because of the
-great membrane which is monadic IO. In Haskell you really can say that a value
-is a "computation" and that a monadic value is an "action".
+I'm not too deep into functional reactive programming yet, but I will say that `[reflex] and `[reflex-dom] are pretty easy to get started with.
+And actually that's a point I would like to make: even if you don't quite understand FRP and just want to make a website, Reflex is a good choice.
+I will recommend @[[reflex-dom-inbits]https://github.com/hansroland/reflex-dom-inbits/blob/master/tutorial.md] tutorial which is a nice practical introduction to Reflex.
 ]
 
-##[For Compilers]
+#[The Bad]
 
 p[
-Did you really think you could read about Haskell without also reading about
-compilers? This server also contains a little markdown compiler. Here's the
-language definition ripped right out of the source code:
+Nix is a great source of sanity, but it is often poorly documented.
+My wish is that Nix had a strong, expressive type system to make it easier to know how a given expression can be used.
 ]
 
-``
-|blockParsers :: [ParseMaybe]
-|blockParsers =
-|  [ mkParser Rule "---" "\n"
-|  , mkParser Title "# " "\n"
-|  , mkParser Heading "## " "\n"
-|  , mkParser Subheading "### " "\n"
-|  , mkParser CodeBlock "``\n" "\n``\n"
-|  , mkParser Paragraph "" "\n\n"
-|  ]
-|
-|elementParsers :: [ParseMaybe]
-|elementParsers =
-|  [ mkParser Bold "**" "**"
-|  , mkParser Italics "*" "*"
-|  , mkParser CodeInline "`" "`"
-|  , mkParser Link "[" "]"
-|  ]
+p[
+Reflex Platform doesn't provide a working `[haskell-language-server]!
+That's ok since you can just add a haskell-language-server package, but it needs to work with GHC 8.6.5, so some digging is required to find one that works.
+It would be nice if Reflex did that work for us.
+]
+
+#[Conclusion]
 
 p[
-You can see how it's mostly just markdown with some quirks. The code generator
-spits out the HTML tags that you'd expect. There are some things I'd like to
-add in order to supplant the need for writing HTML completely, since like most
-people I hate typing or seeing XML.
+I'm really looking forward to the future of Haskell, GHC, haskell-language-server, FRP and Nix.
+They represent a much more structured and "complete" way to write software.
 ]
 
 |]

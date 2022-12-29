@@ -33,5 +33,5 @@ post k = case find (\p -> key p == k) posts of
 
 posts :: [Post]
 posts =
-  [ Post "hello-world" (fromGregorian 2022 2 1) "Hello World" Posts.HelloWorld.post
+  [ Post "hello-world" (fromGregorian 2022 12 27) "Hello World" Posts.HelloWorld.post
   ]
