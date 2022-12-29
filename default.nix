@@ -5,7 +5,7 @@ let
   client = shell.ghcjs.client;
 in
 stdenv.mkDerivation {
-  name = "willmcpherson2.com";
+  name = "willmcpherson2";
   src = ./www;
   dontUnpack = true;
   buildInputs = [ closurecompiler ];
