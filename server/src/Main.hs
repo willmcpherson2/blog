@@ -1,20 +1,22 @@
 module Main where
 
+import Control.Applicative (Alternative ((<|>)))
 import Data.ByteString (ByteString)
 import Data.Text (unpack)
 import Network.HTTP.Types (hContentType, status200)
 import Network.Wai (Application, Request (pathInfo, requestMethod), Response, responseFile)
 import Network.Wai.Handler.Warp (run)
-import System.Environment (getArgs)
+import System.Environment (getArgs, getEnv)
 import Prelude hiding (readFile)
 
 main :: IO ()
 main =
   getArgs >>= \case
     [dir] -> do
+      port <- read <$> getEnv "PORT" <|> pure 8000
       putStrLn $ "dir: " <> dir
-      putStrLn "at http://localhost:8000/"
-      run 8000 $ app dir
+      putStrLn $ "at http://localhost:" <> show port
+      run port (app dir)
     _ -> putStrLn "no html/js to serve"
 
 app :: String -> Application
