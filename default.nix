@@ -1,6 +1,6 @@
 let
   shell = import ./shell.nix;
-  inherit (import <nixpkgs> { }) stdenv concatText closurecompiler;
+  inherit (import <nixpkgs> { }) stdenv closurecompiler;
   server = shell.ghc.server;
   client = shell.ghcjs.client;
 in
