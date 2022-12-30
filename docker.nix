@@ -4,6 +4,7 @@ let
 in
 dockerTools.buildImage {
   name = "registry.heroku.com/willmcpherson2/web";
+  tag = "latest";
   copyToRoot = pkgs.buildEnv {
     name = "willmcpherson2";
     paths = [
