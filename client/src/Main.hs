@@ -11,12 +11,7 @@ import Reflex.Dom
 import TulipDemo
 
 main :: IO ()
-main = mainWidgetWithHead headElement bodyElement
-
-headElement :: Widget x ()
-headElement = do
-  el "title" $ text "willmcpherson2"
-  elAttr "link" ("rel" =: "stylesheet" <> "href" =: "/style.css") blank
+main = mainWidget bodyElement
 
 bodyElement :: Widget x ()
 bodyElement = do
