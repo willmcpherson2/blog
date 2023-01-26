@@ -12,7 +12,7 @@ markup = do
   area <-
     textAreaElement $
       def
-        & textAreaElementConfig_elementConfig . elementConfig_initialAttributes .~ "class" =: "code-input"
+        & textAreaElementConfig_elementConfig . elementConfig_initialAttributes .~ ("class" =: "code-input" <> "rows" =: "5")
         & textAreaElementConfig_initialValue .~ markupExample
   let inputEvent = _textAreaElement_input area
   let handle = compile . unpack
