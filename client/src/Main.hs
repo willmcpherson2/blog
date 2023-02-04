@@ -9,6 +9,7 @@ import NotFound
 import Post (post, previews)
 import Reflex.Dom
 import TulipDemo
+import Music
 
 main :: IO ()
 main = mainWidget bodyElement
@@ -29,6 +30,8 @@ header = elClass "div" "header" $ do
     elAttr "a" ("href" =: "/tulip") $ text "tulip"
     text " "
     elAttr "a" ("href" =: "/markup") $ text "markup"
+    text " "
+    elAttr "a" ("href" =: "/music") $ text "music"
 
 route :: String -> Widget x ()
 route pathname = case filter (not . null) $ splitOn "/" pathname of
@@ -37,6 +40,7 @@ route pathname = case filter (not . null) $ splitOn "/" pathname of
   ["posts", name] -> post name
   ["tulip"] -> tulip
   ["markup"] -> markup
+  ["music"] -> music
   _ -> notFound
 
 index :: Widget x ()

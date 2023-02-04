@@ -32,6 +32,7 @@ executable client
     NotFound
     TulipDemo
     MarkupDemo
+    Music
   build-depends:
     base
     , markup
