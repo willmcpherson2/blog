@@ -14,6 +14,7 @@ executable client
     , LambdaCase
     , QuasiQuotes
     , RankNTypes
+    , NamedFieldPuns
   if !flag(dev) && impl(ghcjs)
     ghc-options:
       -dedupe

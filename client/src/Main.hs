@@ -32,7 +32,7 @@ header = elClass "div" "header" $ do
     text " "
     elAttr "a" ("href" =: "/music") $ text "music"
     text " "
-    elAttr "a" ("href" =: "/particlelife") $ text "particlelife"
+    elAttr "a" ("href" =: "/particleLife") $ text "particleLife"
 
 route :: String -> Widget x ()
 route pathname = case filter (not . null) $ splitOn "/" pathname of
@@ -42,7 +42,7 @@ route pathname = case filter (not . null) $ splitOn "/" pathname of
   ["tulip"] -> tulip
   ["markup"] -> markup
   ["music"] -> music
-  ["particlelife"] -> canvas
+  ["particleLife"] -> particleLife
   _ -> notFound
 
 index :: Widget x ()
