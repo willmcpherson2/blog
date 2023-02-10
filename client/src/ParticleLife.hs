@@ -1,6 +1,5 @@
 module ParticleLife (canvas) where
 
-import Debug.Trace (traceShowId)
 import Reflex.Dom (Widget, Element (..), elAttr', (=:), blank)
 import JSDOM (currentWindowUnchecked)
 import JSDOM.Types (liftJSM, FromJSVal (fromJSValUnchecked), ToJSVal (toJSVal), RenderingContext (..), CanvasRenderingContext2D, RequestAnimationFrameCallback (..), Callback (..), Window)
@@ -21,7 +20,6 @@ canvas = do
   let state = State {x = 0}
   let prevTime = Nothing
   liftJSM $ animate win ctx state prevTime
-  pure ()
 
 getCtx :: Widget x CanvasRenderingContext2D
 getCtx = do
@@ -52,7 +50,6 @@ animateCallback win ctx state prevTime nowTime = do
   draw ctx state
   let state' = update state delta
   animate win ctx state' (Just nowTime)
-  pure ()
 
 draw :: CanvasRenderingContext2D -> State -> IO ()
 draw ctx state = point ctx (x state) 50
