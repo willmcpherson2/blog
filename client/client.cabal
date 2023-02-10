@@ -39,6 +39,7 @@ executable client
     , markup
     , reflex
     , reflex-dom
+    , jsaddle
     , jsaddle-dom
     , containers
     , text

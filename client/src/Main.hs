@@ -1,7 +1,7 @@
 module Main where
 
 import Data.List.Split (splitOn)
-import JSDOM (currentWindow)
+import JSDOM (currentWindowUnchecked)
 import JSDOM.Custom.Window (getLocation)
 import JSDOM.Generated.Location (getPathname)
 import MarkupDemo
@@ -18,9 +18,7 @@ main = mainWidget bodyElement
 bodyElement :: Widget x ()
 bodyElement = do
   header
-  currentWindow >>= \case
-    Just window -> getLocation window >>= getPathname >>= route
-    Nothing -> error "no window"
+  currentWindowUnchecked >>= getLocation >>= getPathname >>= route
 
 header :: Widget x ()
 header = elClass "div" "header" $ do
