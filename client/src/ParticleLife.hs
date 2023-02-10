@@ -43,13 +43,19 @@ animate :: Window -> CanvasRenderingContext2D -> State -> Maybe Double -> IO ()
 animate win ctx state prevTime = do
   callback <- liftJSM $ function $ \_ _ [nowTimeVal] -> do
     nowTime <- fromJSValUnchecked nowTimeVal
-    draw win ctx state prevTime nowTime
+    animateCallback win ctx state prevTime nowTime
   requestAnimationFrame_ win (RequestAnimationFrameCallback $ Callback callback)
 
-draw :: Window -> CanvasRenderingContext2D -> State -> Maybe Double -> Double -> IO ()
-draw win ctx state prevTime nowTime = do
-  point ctx (x state) 50
+animateCallback :: Window -> CanvasRenderingContext2D -> State -> Maybe Double -> Double -> IO ()
+animateCallback win ctx state prevTime nowTime = do
   let delta = nowTime - fromMaybe nowTime prevTime
-  let state' = state{x = x state + delta * 0.01}
+  draw ctx state
+  let state' = update state delta
   animate win ctx state' (Just nowTime)
   pure ()
+
+draw :: CanvasRenderingContext2D -> State -> IO ()
+draw ctx state = point ctx (x state) 50
+
+update :: State -> Double -> State
+update state delta = state{x = x state + delta * 0.01}
