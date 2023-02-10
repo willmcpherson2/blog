@@ -33,6 +33,7 @@ executable client
     TulipDemo
     MarkupDemo
     Music
+    ParticleLife
   build-depends:
     base
     , markup

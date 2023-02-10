@@ -10,6 +10,7 @@ import Post (post, previews)
 import Reflex.Dom
 import TulipDemo
 import Music
+import ParticleLife
 
 main :: IO ()
 main = mainWidget bodyElement
@@ -32,6 +33,8 @@ header = elClass "div" "header" $ do
     elAttr "a" ("href" =: "/markup") $ text "markup"
     text " "
     elAttr "a" ("href" =: "/music") $ text "music"
+    text " "
+    elAttr "a" ("href" =: "/particlelife") $ text "particlelife"
 
 route :: String -> Widget x ()
 route pathname = case filter (not . null) $ splitOn "/" pathname of
@@ -41,6 +44,7 @@ route pathname = case filter (not . null) $ splitOn "/" pathname of
   ["tulip"] -> tulip
   ["markup"] -> markup
   ["music"] -> music
+  ["particlelife"] -> canvas
   _ -> notFound
 
 index :: Widget x ()
