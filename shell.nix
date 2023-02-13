@@ -12,7 +12,6 @@ let
 in
 reflex.project ({ pkgs, ... }: {
   packages = {
-    markup = ./markup;
     server = ./server;
     client = ./client;
     parss = ./parss;
@@ -20,8 +19,8 @@ reflex.project ({ pkgs, ... }: {
   };
 
   shells = {
-    ghc = [ "markup" "server" "client" "parss" "tulip" ];
-    ghcjs = [ "markup" "client" "parss" "tulip" ];
+    ghc = [ "server" "client" "parss" "tulip" ];
+    ghcjs = [ "client" "parss" "tulip" ];
   };
 
   shellToolOverrides = ghc: super: {
@@ -43,7 +42,7 @@ reflex.project ({ pkgs, ... }: {
       find server | entr -rs server-run
     '';
     client-reload = pkgs.writeShellScriptBin "client-reload" ''
-      find markup client www parss tulip | entr -s client-build
+      find client www parss tulip | entr -s client-build
     '';
   };
 

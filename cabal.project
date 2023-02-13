@@ -1,5 +1,4 @@
 packages:
-  markup/
   server/
   client/
   parss/

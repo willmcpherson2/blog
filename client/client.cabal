@@ -10,6 +10,7 @@ common common
   default-extensions:
     OverloadedStrings
     , LambdaCase
+    , TemplateHaskell
     , QuasiQuotes
     , RankNTypes
     , NamedFieldPuns
@@ -31,12 +32,21 @@ common exe
 library
   import: common
   hs-source-dirs: lib
-  exposed-modules: Utils
+  exposed-modules:
+    Utils
+    Markup.M
+    Markup.Parse
+    Markup.Compile.Widget
+    Markup.Compile.Exp
   build-depends:
     base
+    , text
     , split
+    , template-haskell
     , jsaddle-dom
     , reflex-dom
+    , parss
+    , transformers
 
 executable posts
   import: exe
@@ -47,7 +57,6 @@ executable posts
     , base
     , reflex-dom
     , raw-strings-qq
-    , markup
     , time
     , text
 
@@ -60,7 +69,6 @@ executable music
     , base
     , reflex-dom
     , raw-strings-qq
-    , markup
     , text
 
 executable markup-demo
@@ -72,7 +80,6 @@ executable markup-demo
     , base
     , reflex-dom
     , raw-strings-qq
-    , markup
     , text
 
 executable tulip-demo
@@ -84,7 +91,6 @@ executable tulip-demo
     , base
     , reflex-dom
     , raw-strings-qq
-    , markup
     , text
     , tulip
 
@@ -99,7 +105,6 @@ executable particle-life
     , jsaddle-dom
     , reflex-dom
     , raw-strings-qq
-    , markup
     , text
     , tulip
 
