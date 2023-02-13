@@ -20,7 +20,8 @@ stdenv.mkDerivation {
         --compilation_level ADVANCED_OPTIMIZATIONS \
         --jscomp_off=checkVars \
         --externs=$dir/all.js.externs \
-        $dir/all.js > $out/static/$filename
+        $dir/all.js > $out/static/$filename &
     done
+    wait
   '';
 }
