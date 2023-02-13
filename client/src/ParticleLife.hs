@@ -58,12 +58,9 @@ particleLife = do
   let state =
         State
           { points =
-              [ Point {color = Red, pos = Vec 200 50, vel = Vec 0 0},
-                Point {color = Cyan, pos = Vec 0 50, vel = Vec 0 0},
-                Point {color = Green, pos = Vec 300 100, vel = Vec 0 0},
-                Point {color = Yellow, pos = Vec 200 200, vel = Vec 0 0},
-                Point {color = Yellow, pos = Vec 210 200, vel = Vec 0 0},
-                Point {color = Yellow, pos = Vec 205 210, vel = Vec 0 0}
+              [ Point {color = Red, pos = Vec 200 200, vel = Vec 0 0},
+                Point {color = Green, pos = Vec 300 200, vel = Vec 0 0},
+                Point {color = Blue, pos = Vec 250 250, vel = Vec 0 0}
               ]
           }
   let prevTime = Nothing
@@ -125,25 +122,16 @@ update state delta = state {points = map (updatePoint delta (points state)) (poi
 
 updatePoint :: Double -> [Point] -> Point -> Point
 updatePoint delta others point =
-  let vel' = foldr (updateVel delta point) (vel point) others
-      pos' = Vec (x (pos point) + x vel') (y (pos point) + y vel')
+  let vel' = normalize $ foldr (updateVel point) (Vec 0 0) others
+      speed = 0.1
+      pos' = Vec (x (pos point) + x vel' * speed * delta) (y (pos point) + y vel' * speed * delta)
    in point {vel = vel', pos = pos'}
 
-updateVel :: Double -> Point -> Point -> Vec -> Vec
-updateVel delta point other vel =
-  let direction = normalize $ Vec (x (pos other) - x (pos point)) (y (pos other) - y (pos point))
+updateVel :: Point -> Point -> Vec -> Vec
+updateVel point other vel =
+  let direction = Vec (x (pos other) - x (pos point)) (y (pos other) - y (pos point))
       att = attraction (color other) (color point)
-      dist = distance (pos point) (pos other)
-      gravity = 1 / max 1 (dist ^ (2 :: Int))
-      frictionRadius = radius * 20
-      friction = (min frictionRadius (max 1 dist) - 1) / (frictionRadius - 1)
-      speed = 2
-      dx = x direction * att * gravity * friction * speed * delta
-      dy = y direction * att * gravity * friction * speed * delta
-   in Vec (x vel + dx) (y vel + dy)
-
-distance :: Vec -> Vec -> Double
-distance (Vec x1 y1) (Vec x2 y2) = sqrt $ (x2 - x1) ^ (2 :: Int) + (y2 - y1) ^ (2 :: Int)
+   in Vec (x vel + x direction * att) (y vel + y direction * att)
 
 normalize :: Vec -> Vec
 normalize (Vec x y) =
@@ -167,13 +155,15 @@ colorToIndex = \case
   Blue -> 4
   Magenta -> 5
 
+{- ORMOLU_DISABLE -}
 matrix :: [[Double]]
 matrix =
-  -- R  Y  G  C  B  M
-  [ [0, 1, 0, 0, 0, 0], -- Red
-    [0, 1, 0, 0, 0, 0], -- Yellow
-    [0, 1, 0, 0, 0, 0], -- Green
-    [0, 1, 0, 0, 0, 0], -- Cyan
-    [0, 1, 0, 0, 0, 0], -- Blue
-    [0, 1, 0, 0, 0, 0] -- Magenta
+  [ [ 0,  0,  1,  0, -1,  0], -- Red
+    [ 0,  0,  0,  0,  0,  0], -- Yellow
+    [-1,  0,  0,  0,  1,  0], -- Green
+    [ 0,  0,  0,  0,  0,  0], -- Cyan
+    [ 1,  0, -1,  0,  0,  0], -- Blue
+    [ 0,  0,  0,  0,  0,  0]  -- Magenta
+  --  Red Yel Gre Cya Blu Mag
   ]
+{- ORMOLU_ENABLE -}
