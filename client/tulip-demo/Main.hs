@@ -1,13 +1,15 @@
-module TulipDemo where
+module Main (main) where
 
 import Data.Text (Text, pack, unpack)
 import Markup.M (m)
 import Reflex.Dom
 import Text.RawString.QQ
 import Tulip (getResult)
+import Utils (header)
 
-tulip :: Widget x ()
-tulip = do
+main :: IO ()
+main = mainWidget $ do
+  header
   intro
   area <-
     textAreaElement $

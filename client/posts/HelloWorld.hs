@@ -1,4 +1,4 @@
-module Posts.HelloWorld where
+module HelloWorld where
 
 import Markup.M (m)
 import Reflex.Dom (Widget)

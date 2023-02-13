@@ -1,13 +1,15 @@
-module MarkupDemo where
+module Main (main) where
 
 import Data.Text (Text, unpack)
 import Markup.Compile.Widget (compile)
 import Markup.M (m)
 import Reflex.Dom
 import Text.RawString.QQ
+import Utils (header)
 
-markup :: Widget x ()
-markup = do
+main :: IO ()
+main = mainWidget $ do
+  header
   intro
   area <-
     textAreaElement $

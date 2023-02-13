@@ -1,5 +1,6 @@
-module ParticleLife (particleLife) where
+module Main (main) where
 
+import Utils (header)
 import Data.Maybe (fromMaybe)
 import Debug.Trace (trace, traceShowId)
 import JSDOM (currentWindowUnchecked)
@@ -32,7 +33,7 @@ import JSDOM.Types
     liftJSM,
   )
 import Language.Javascript.JSaddle.Object (function)
-import Reflex.Dom (Element (..), Widget, blank, elAttr', (=:))
+import Reflex.Dom (Element (..), Widget, blank, elAttr', (=:), mainWidget)
 
 data Canvas = Canvas
   { canvasEl :: HTMLCanvasElement,
@@ -51,8 +52,9 @@ data Vec = Vec {x :: Double, y :: Double}
 data Color = Red | Yellow | Green | Cyan | Blue | Magenta
   deriving (Show)
 
-particleLife :: Widget x ()
-particleLife = do
+main :: IO ()
+main = mainWidget $ do
+  header
   win <- currentWindowUnchecked
   canvas <- mkCanvas
   let state =

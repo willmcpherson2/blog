@@ -1,12 +1,12 @@
-module Music where
+module Main (main) where
 
-import Data.Text (Text, pack, unpack)
 import Reflex.Dom
 import Markup.M (m)
-import Text.RawString.QQ
+import Utils (header)
 
-music :: Widget x ()
-music = do
+main :: IO ()
+main = mainWidget $ do
+  header
   [m|
 
 My music is licensed under @[[Creative Commons Attribution][https://creativecommons.org/licenses/by/3.0/]]

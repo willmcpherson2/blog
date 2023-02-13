@@ -1,11 +1,18 @@
-module Post (previews, post) where
+module Main (main) where
 
 import Data.List (find, sortOn)
 import Data.Text (pack)
 import Data.Time (Day, fromGregorian)
-import NotFound
-import qualified Posts.HelloWorld
+import qualified HelloWorld
 import Reflex.Dom
+import Utils (route, header)
+
+main :: IO ()
+main = mainWidget $ do
+  header
+  route $ \case
+    ["posts"] -> previews
+    ["posts", name] -> post name
 
 data Post = Post
   { key :: String,
@@ -29,9 +36,9 @@ post k = case find (\p -> key p == k) posts of
     el "h1" $ text $ pack $ title p
     el "date" $ text $ pack $ show $ date p
     content p
-  Nothing -> notFound
+  Nothing -> undefined
 
 posts :: [Post]
 posts =
-  [ Post "hello-world" (fromGregorian 2022 12 27) "Hello World" Posts.HelloWorld.post
+  [ Post "hello-world" (fromGregorian 2022 12 27) "Hello World" HelloWorld.post
   ]

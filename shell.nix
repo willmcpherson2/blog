@@ -32,10 +32,12 @@ reflex.project ({ pkgs, ... }: {
     '';
     client-build = pkgs.writeShellScriptBin "client-build" ''
       cabal new-build --ghcjs -fdev client
-      alljs="$(find dist-newstyle -type f -name all.js)"
       mkdir -p static
       cp -r www/* static
-      cp $alljs static
+      for dir in $(find dist-newstyle -name "*.jsexe"); do
+        filename="$(basename "$dir" .jsexe).js"
+        cp "$dir/all.js" "static/$filename"
+      done
     '';
     server-reload = pkgs.writeShellScriptBin "server-reload" ''
       find server | entr -rs server-run
