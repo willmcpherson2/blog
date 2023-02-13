@@ -1,16 +1,38 @@
 module ParticleLife (particleLife) where
 
-import Debug.Trace (traceShowId, trace)
-import Reflex.Dom (Widget, Element (..), elAttr', (=:), blank)
-import JSDOM (currentWindowUnchecked)
-import JSDOM.Types (liftJSM, FromJSVal (fromJSValUnchecked), ToJSVal (toJSVal), RenderingContext (..), CanvasRenderingContext2D, RequestAnimationFrameCallback (..), Callback (..), Window)
-import JSDOM.Generated.HTMLCanvasElement (getContextUnchecked, HTMLCanvasElement, getWidth, getHeight, setWidth, setHeight)
-import JSDOM.Generated.CanvasRenderingContext2D (beginPath, setFillStyle, fill, clearRect, stroke)
-import JSDOM.Generated.CanvasPath (arc)
-import JSDOM.Generated.Enums (CanvasWindingRule (..))
-import JSDOM.Custom.Window (requestAnimationFrame_)
-import Language.Javascript.JSaddle.Object (function)
 import Data.Maybe (fromMaybe)
+import Debug.Trace (trace, traceShowId)
+import JSDOM (currentWindowUnchecked)
+import JSDOM.Custom.Window (requestAnimationFrame_)
+import JSDOM.Generated.CanvasPath (arc)
+import JSDOM.Generated.CanvasRenderingContext2D
+  ( beginPath,
+    clearRect,
+    fill,
+    setFillStyle,
+    stroke,
+  )
+import JSDOM.Generated.Enums (CanvasWindingRule (..))
+import JSDOM.Generated.HTMLCanvasElement
+  ( HTMLCanvasElement,
+    getContextUnchecked,
+    getHeight,
+    getWidth,
+    setHeight,
+    setWidth,
+  )
+import JSDOM.Types
+  ( Callback (..),
+    CanvasRenderingContext2D,
+    FromJSVal (fromJSValUnchecked),
+    RenderingContext (..),
+    RequestAnimationFrameCallback (..),
+    ToJSVal (toJSVal),
+    Window,
+    liftJSM,
+  )
+import Language.Javascript.JSaddle.Object (function)
+import Reflex.Dom (Element (..), Widget, blank, elAttr', (=:))
 
 data Canvas = Canvas
   { canvasEl :: HTMLCanvasElement,
@@ -34,15 +56,16 @@ particleLife = do
   win <- currentWindowUnchecked
   canvas <- mkCanvas
   let state =
-        State {points =
-               [ Point {color = Red, pos = Vec 200 50, vel = Vec 0 0},
-                 Point {color = Cyan, pos = Vec 0 50, vel = Vec 0 0},
-                 Point {color = Green, pos = Vec 300 100, vel = Vec 0 0},
-                 Point {color = Yellow, pos = Vec 200 200, vel = Vec 0 0},
-                 Point {color = Yellow, pos = Vec 210 200, vel = Vec 0 0},
-                 Point {color = Yellow, pos = Vec 205 210, vel = Vec 0 0}
-               ]
-              }
+        State
+          { points =
+              [ Point {color = Red, pos = Vec 200 50, vel = Vec 0 0},
+                Point {color = Cyan, pos = Vec 0 50, vel = Vec 0 0},
+                Point {color = Green, pos = Vec 300 100, vel = Vec 0 0},
+                Point {color = Yellow, pos = Vec 200 200, vel = Vec 0 0},
+                Point {color = Yellow, pos = Vec 210 200, vel = Vec 0 0},
+                Point {color = Yellow, pos = Vec 205 210, vel = Vec 0 0}
+              ]
+          }
   let prevTime = Nothing
   liftJSM $ animate win canvas state prevTime
 
@@ -60,9 +83,10 @@ mkCanvas = do
 
 animate :: Window -> Canvas -> State -> Maybe Double -> IO ()
 animate win canvas state prevTime = do
-  callback <- liftJSM $ function $ \_ _ [nowTimeVal] -> do
-    nowTime <- fromJSValUnchecked nowTimeVal
-    animateCallback win canvas state prevTime nowTime
+  callback <- liftJSM $
+    function $ \_ _ [nowTimeVal] -> do
+      nowTime <- fromJSValUnchecked nowTimeVal
+      animateCallback win canvas state prevTime nowTime
   requestAnimationFrame_ win (RequestAnimationFrameCallback $ Callback callback)
 
 animateCallback :: Window -> Canvas -> State -> Maybe Double -> Double -> IO ()
@@ -97,7 +121,7 @@ colorToString = \case
   Magenta -> "fuchsia"
 
 update :: State -> Double -> State
-update state delta = state{points = map (updatePoint delta (points state)) (points state)}
+update state delta = state {points = map (updatePoint delta (points state)) (points state)}
 
 updatePoint :: Double -> [Point] -> Point -> Point
 updatePoint delta others point =
@@ -125,8 +149,8 @@ normalize :: Vec -> Vec
 normalize (Vec x y) =
   let magnitude = sqrt $ x ^ (2 :: Int) + y ^ (2 :: Int)
    in if magnitude == 0
-         then Vec 0 0
-         else Vec (x / magnitude) (y / magnitude)
+        then Vec 0 0
+        else Vec (x / magnitude) (y / magnitude)
 
 attraction :: Color -> Color -> Double
 attraction other color = matrix !! colorToIndex color !! colorToIndex other
@@ -145,11 +169,11 @@ colorToIndex = \case
 
 matrix :: [[Double]]
 matrix =
-  [ [ 0,  1,  0,  0,  0,  0], -- Red
-    [ 0,  1,  0,  0,  0,  0], -- Yellow
-    [ 0,  1,  0,  0,  0,  0], -- Green
-    [ 0,  1,  0,  0,  0,  0], -- Cyan
-    [ 0,  1,  0,  0,  0,  0], -- Blue
-    [ 0,  1,  0,  0,  0,  0]  -- Magenta
-  --  Red Yel Gre Cya Blu Mag
+  -- R  Y  G  C  B  M
+  [ [0, 1, 0, 0, 0, 0], -- Red
+    [0, 1, 0, 0, 0, 0], -- Yellow
+    [0, 1, 0, 0, 0, 0], -- Green
+    [0, 1, 0, 0, 0, 0], -- Cyan
+    [0, 1, 0, 0, 0, 0], -- Blue
+    [0, 1, 0, 0, 0, 0] -- Magenta
   ]
