@@ -1,6 +1,5 @@
 module Main (main) where
 
-import Utils (header)
 import Data.Maybe (fromMaybe)
 import Debug.Trace (trace, traceShowId)
 import JSDOM (currentWindowUnchecked)
@@ -33,7 +32,8 @@ import JSDOM.Types
     liftJSM,
   )
 import Language.Javascript.JSaddle.Object (function)
-import Reflex.Dom (Element (..), Widget, blank, elAttr', (=:), mainWidget)
+import Reflex.Dom (Element (..), Widget, blank, elAttr', mainWidget, (=:))
+import Utils (header)
 
 data Canvas = Canvas
   { canvasEl :: HTMLCanvasElement,

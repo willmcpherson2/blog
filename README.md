@@ -19,4 +19,7 @@ heroku login
 heroku container:login
 docker push registry.heroku.com/willmcpherson2/web:latest
 heroku container:release web -a willmcpherson2
+
+# format
+nix-shell -A shells.ghcjs --run format
 ```

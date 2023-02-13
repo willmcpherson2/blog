@@ -5,7 +5,7 @@ import Data.Text (pack)
 import Data.Time (Day, fromGregorian)
 import qualified HelloWorld
 import Reflex.Dom
-import Utils (route, header)
+import Utils (header, route)
 
 main :: IO ()
 main = mainWidget $ do

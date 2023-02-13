@@ -1,7 +1,7 @@
 module Main (main) where
 
-import Reflex.Dom
 import Markup.M (m)
+import Reflex.Dom
 import Utils (header)
 
 main :: IO ()

@@ -39,10 +39,8 @@ route dir (x : _) = case x of
   "tulip-demo.js" -> res dir "tulip-demo.js" "text/javascript"
   "particle-life" -> res dir "particle-life.html" "text/html"
   "particle-life.js" -> res dir "particle-life.js" "text/javascript"
-
   "style.css" -> res dir "style.css" "text/css"
   "favicon.ico" -> res dir "favicon.ico" "image/x-icon"
-
   "not-found.js" -> res dir "not-found.js" "text/javascript"
   _ -> res dir "not-found.html" "text/html"
 

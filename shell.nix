@@ -44,6 +44,9 @@ reflex.project ({ pkgs, ... }: {
     client-reload = pkgs.writeShellScriptBin "client-reload" ''
       find client www parss tulip | entr -s client-build
     '';
+    format = pkgs.writeShellScriptBin "format" ''
+      find server client -name "*.hs" -exec ormolu -ei {} ";"
+    '';
   };
 
   useWarp = true;

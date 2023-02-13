@@ -52,6 +52,7 @@ executable posts
   import: exe
   hs-source-dirs: posts
   main-is: Main.hs
+  other-modules: HelloWorld
   build-depends:
     client
     , base

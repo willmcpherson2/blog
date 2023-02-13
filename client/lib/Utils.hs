@@ -2,10 +2,10 @@ module Utils (header, route) where
 
 import Control.Arrow ((>>>))
 import Data.List.Split (splitOn)
-import Reflex.Dom
 import JSDOM (currentWindowUnchecked)
 import JSDOM.Custom.Window (getLocation)
 import JSDOM.Generated.Location (getPathname)
+import Reflex.Dom
 
 header :: Widget x ()
 header = elClass "div" "header" $ do
