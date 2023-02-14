@@ -1,4 +1,4 @@
-module Utils (header, route) where
+module Utils (header, route, notFound) where
 
 import Control.Arrow ((>>>))
 import Data.List.Split (splitOn)
@@ -20,6 +20,9 @@ header = elClass "div" "header" $ do
     elAttr "a" ("href" =: "/tulip-demo") $ text "tulip"
     text " "
     elAttr "a" ("href" =: "/particle-life") $ text "particle-life"
+
+notFound :: Widget x ()
+notFound = text "page not found!"
 
 route :: ([String] -> Widget x a) -> Widget x a
 route f =

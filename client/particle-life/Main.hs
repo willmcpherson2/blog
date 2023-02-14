@@ -1,7 +1,6 @@
 module Main (main) where
 
 import Data.Maybe (fromMaybe)
-import Debug.Trace (trace, traceShowId)
 import JSDOM (currentWindowUnchecked)
 import JSDOM.Custom.Window (requestAnimationFrame_)
 import JSDOM.Generated.CanvasPath (arc)
@@ -83,7 +82,11 @@ mkCanvas = do
 animate :: Window -> Canvas -> State -> Maybe Double -> IO ()
 animate win canvas state prevTime = do
   callback <- liftJSM $
-    function $ \_ _ [nowTimeVal] -> do
+    function $ \_ _ args -> do
+      let nowTimeVal =
+            case args of
+              [arg] -> arg
+              _ -> undefined
       nowTime <- fromJSValUnchecked nowTimeVal
       animateCallback win canvas state prevTime nowTime
   requestAnimationFrame_ win (RequestAnimationFrameCallback $ Callback callback)

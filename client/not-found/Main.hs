@@ -1,9 +1,9 @@
 module Main (main) where
 
 import Reflex.Dom
-import Utils (header)
+import Utils (header, notFound)
 
 main :: IO ()
 main = mainWidget $ do
   header
-  text "page not found!"
+  notFound

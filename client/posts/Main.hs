@@ -5,7 +5,7 @@ import Data.Text (pack)
 import Data.Time (Day, fromGregorian)
 import qualified HelloWorld
 import Reflex.Dom
-import Utils (header, route)
+import Utils (header, notFound, route)
 
 main :: IO ()
 main = mainWidget $ do
@@ -13,6 +13,7 @@ main = mainWidget $ do
   route $ \case
     ["posts"] -> previews
     ["posts", name] -> post name
+    _ -> notFound
 
 data Post = Post
   { key :: String,
@@ -36,7 +37,7 @@ post k = case find (\p -> key p == k) posts of
     el "h1" $ text $ pack $ title p
     el "date" $ text $ pack $ show $ date p
     content p
-  Nothing -> undefined
+  Nothing -> notFound
 
 posts :: [Post]
 posts =
