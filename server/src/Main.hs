@@ -3,8 +3,20 @@ module Main (main) where
 import Control.Applicative (Alternative ((<|>)))
 import Data.ByteString (ByteString)
 import Data.Text (unpack)
-import Network.HTTP.Types (hContentType, status200, status404)
-import Network.Wai (Application, Request (pathInfo, requestMethod), Response, responseFile)
+import Network.HTTP.Types
+  ( hContentType,
+    hLocation,
+    status200,
+    status301,
+    status404,
+  )
+import Network.Wai
+  ( Application,
+    Request (pathInfo, requestMethod),
+    Response,
+    responseFile,
+    responseLBS,
+  )
 import Network.Wai.Handler.Warp (run)
 import System.Directory (doesFileExist)
 import System.Environment (getArgs, getEnv)
@@ -29,7 +41,12 @@ app dir request respond = do
 
 route :: String -> [String] -> IO Response
 route dir = \case
-  [] -> pure $ notFound dir
+  [] ->
+    pure $
+      responseLBS
+        status301
+        [(hContentType, "text/plain"), (hLocation, "/posts")]
+        "Redirect"
   segment : _ ->
     let (basename, extension) = splitExtension segment
      in case extension of
