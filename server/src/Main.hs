@@ -3,11 +3,12 @@ module Main (main) where
 import Control.Applicative (Alternative ((<|>)))
 import Data.ByteString (ByteString)
 import Data.Text (unpack)
-import Network.HTTP.Types (hContentType, status200)
+import Network.HTTP.Types (hContentType, status200, status404)
 import Network.Wai (Application, Request (pathInfo, requestMethod), Response, responseFile)
 import Network.Wai.Handler.Warp (run)
+import System.Directory (doesFileExist)
 import System.Environment (getArgs, getEnv)
-import Prelude hiding (readFile)
+import System.FilePath (splitExtension)
 
 main :: IO ()
 main =
@@ -24,30 +25,37 @@ app dir request respond = do
   let method = requestMethod request
       path = map unpack (pathInfo request)
   print (method, path)
-  respond $ route dir path
+  route dir path >>= respond
 
-route :: String -> [String] -> Response
-route dir [] = res dir "not-found.html" "text/html"
-route dir (x : _) = case x of
-  "posts" -> res dir "posts.html" "text/html"
-  "posts.js" -> res dir "posts.js" "text/javascript"
-  "music" -> res dir "music.html" "text/html"
-  "music.js" -> res dir "music.js" "text/javascript"
-  "markup-demo" -> res dir "markup-demo.html" "text/html"
-  "markup-demo.js" -> res dir "markup-demo.js" "text/javascript"
-  "tulip-demo" -> res dir "tulip-demo.html" "text/html"
-  "tulip-demo.js" -> res dir "tulip-demo.js" "text/javascript"
-  "particle-life" -> res dir "particle-life.html" "text/html"
-  "particle-life.js" -> res dir "particle-life.js" "text/javascript"
-  "style.css" -> res dir "style.css" "text/css"
-  "favicon.ico" -> res dir "favicon.ico" "image/x-icon"
-  "not-found.js" -> res dir "not-found.js" "text/javascript"
-  _ -> res dir "not-found.html" "text/html"
+route :: String -> [String] -> IO Response
+route dir = \case
+  [] -> pure $ notFound dir
+  segment : _ ->
+    let (basename, extension) = splitExtension segment
+     in case extension of
+          "" -> routeFile dir (basename <> ".html") "text/html"
+          ".js" -> routeFile dir (basename <> ".js") "text/javascript"
+          ".css" -> routeFile dir (basename <> ".css") "text/css"
+          ".ico" -> routeFile dir (basename <> ".ico") "image/x-icon"
+          _ -> pure $ notFound dir
 
-res :: FilePath -> FilePath -> ByteString -> Response
-res dir file mime =
+routeFile :: FilePath -> FilePath -> ByteString -> IO Response
+routeFile dir file mime = do
+  let path = dir <> "/" <> file
+  doesFileExist path >>= \case
+    True ->
+      pure $
+        responseFile
+          status200
+          [(hContentType, mime)]
+          path
+          Nothing
+    False -> pure $ notFound dir
+
+notFound :: FilePath -> Response
+notFound dir =
   responseFile
-    status200
-    [(hContentType, mime)]
-    (dir <> "/" <> file)
+    status404
+    [(hContentType, "text/html")]
+    (dir <> "/" <> "not-found.html")
     Nothing
