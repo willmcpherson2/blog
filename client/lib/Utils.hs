@@ -17,7 +17,7 @@ header = elClass "div" "header" $ do
     text " "
     elAttr "a" ("href" =: "/markup-demo") $ text "markup"
     text " "
-    elAttr "a" ("href" =: "/tulip-demo") $ text "tulip"
+    elAttr "a" ("href" =: "/two-hand-demo") $ text "two-hand"
     text " "
     elAttr "a" ("href" =: "/particle-life") $ text "particle-life"
 

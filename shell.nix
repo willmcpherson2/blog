@@ -15,12 +15,12 @@ reflex.project ({ pkgs, ... }: {
     server = ./server;
     client = ./client;
     parss = ./parss;
-    tulip = ./tulip;
+    two-hand = ./two-hand;
   };
 
   shells = {
-    ghc = [ "server" "client" "parss" "tulip" ];
-    ghcjs = [ "client" "parss" "tulip" ];
+    ghc = [ "server" "client" "parss" "two-hand" ];
+    ghcjs = [ "client" "parss" "two-hand" ];
   };
 
   shellToolOverrides = ghc: super: {
@@ -42,7 +42,7 @@ reflex.project ({ pkgs, ... }: {
       find server | entr -rs server-run
     '';
     client-reload = pkgs.writeShellScriptBin "client-reload" ''
-      find client www parss tulip | entr -s client-build
+      find client www parss two-hand | entr -s client-build
     '';
     format = pkgs.writeShellScriptBin "format" ''
       find server client -name "*.hs" -exec ormolu -ei {} ";"

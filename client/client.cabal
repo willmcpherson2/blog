@@ -92,9 +92,9 @@ executable markup-demo
     , raw-strings-qq
     , text
 
-executable tulip-demo
+executable two-hand-demo
   import: exe
-  hs-source-dirs: tulip-demo
+  hs-source-dirs: two-hand-demo
   main-is: Main.hs
   build-depends:
     client
@@ -102,7 +102,7 @@ executable tulip-demo
     , reflex-dom
     , raw-strings-qq
     , text
-    , tulip
+    , two-hand
 
 executable particle-life
   import: exe
@@ -116,7 +116,6 @@ executable particle-life
     , reflex-dom
     , raw-strings-qq
     , text
-    , tulip
 
 executable not-found
   import: exe

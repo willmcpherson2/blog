@@ -2,7 +2,7 @@
 	path = parss
 	url = git@github.com:willmcpherson2/parss.git
 	branch = main
-[submodule "tulip"]
-	path = tulip
-	url = git@github.com:willmcpherson2/tulip.git
+[submodule "two-hand"]
+	path = two-hand
+	url = https://github.com/willmcpherson2/two-hand
 	branch = main
