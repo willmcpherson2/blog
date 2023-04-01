@@ -31,8 +31,7 @@ import JSDOM.Types
     liftJSM,
   )
 import Language.Javascript.JSaddle.Object (function)
-import Reflex.Dom (Element (..), Widget, blank, elAttr', mainWidget, (=:))
-import Utils (header)
+import Reflex.Dom (Element (..), Widget, blank, elAttr', mainWidgetInElementById, (=:))
 
 data Canvas = Canvas
   { canvasEl :: HTMLCanvasElement,
@@ -52,8 +51,7 @@ data Color = Red | Yellow | Green | Cyan | Blue | Magenta
   deriving (Show)
 
 main :: IO ()
-main = mainWidget $ do
-  header
+main = mainWidgetInElementById "particle-life" $ do
   win <- currentWindowUnchecked
   canvas <- mkCanvas
   let state =

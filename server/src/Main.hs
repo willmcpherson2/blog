@@ -2,9 +2,11 @@ module Main (main) where
 
 import Control.Applicative (Alternative ((<|>)))
 import Data.ByteString (ByteString)
+import Data.List (intercalate)
 import Data.Text (unpack)
 import Network.HTTP.Types
-  ( hContentType,
+  ( Status,
+    hContentType,
     hLocation,
     status200,
     status301,
@@ -27,10 +29,10 @@ main =
   getArgs >>= \case
     [dir] -> do
       port <- read <$> getEnv "PORT" <|> pure 8000
-      putStrLn $ "dir: " <> dir
-      putStrLn $ "at http://localhost:" <> show port
+      putStrLn dir
+      putStrLn $ "http://localhost:" <> show port
       run port (app dir)
-    _ -> putStrLn "no html/js to serve"
+    _ -> putStrLn "no directory provided"
 
 app :: String -> Application
 app dir request respond = do
@@ -41,38 +43,38 @@ app dir request respond = do
 
 route :: String -> [String] -> IO Response
 route dir = \case
-  [] ->
-    pure $
-      responseLBS
-        status301
-        [(hContentType, "text/plain"), (hLocation, "/posts")]
-        "Redirect"
-  segment : _ ->
-    let (basename, extension) = splitExtension segment
-     in case extension of
-          "" -> routeFile dir (basename <> ".html") "text/html"
-          ".js" -> routeFile dir (basename <> ".js") "text/javascript"
-          ".css" -> routeFile dir (basename <> ".css") "text/css"
-          ".ico" -> routeFile dir (basename <> ".ico") "image/x-icon"
-          _ -> pure $ notFound dir
+  [] -> redirect "posts"
+  path -> routeFile dir (intercalate "/" path) status200
 
-routeFile :: FilePath -> FilePath -> ByteString -> IO Response
-routeFile dir file mime = do
-  let path = dir <> "/" <> file
+routeFile :: FilePath -> FilePath -> Status -> IO Response
+routeFile dir file status = do
+  let (_, extension) = splitExtension file
+      mime =
+        case extension of
+          "" -> "text/html"
+          ".html" -> "text/html"
+          ".js" -> "text/javascript"
+          ".css" -> "text/css"
+          ".ico" -> "image/x-icon"
+          _ -> "text/plain"
+      path =
+        case extension of
+          "" -> dir <> "/" <> file <> ".html"
+          _ -> dir <> "/" <> file
   doesFileExist path >>= \case
     True ->
       pure $
         responseFile
-          status200
+          status
           [(hContentType, mime)]
           path
           Nothing
-    False -> pure $ notFound dir
+    False -> routeFile dir "not-found" status404
 
-notFound :: FilePath -> Response
-notFound dir =
-  responseFile
-    status404
-    [(hContentType, "text/html")]
-    (dir <> "/" <> "not-found.html")
-    Nothing
+redirect :: ByteString -> IO Response
+redirect path =
+  pure $
+    responseLBS
+      status301
+      [(hContentType, "text/plain"), (hLocation, path)]
+      "Redirect"

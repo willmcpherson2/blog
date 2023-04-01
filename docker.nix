@@ -13,6 +13,6 @@ dockerTools.buildImage {
     ];
   };
   config = {
-    Cmd = [ "/bin/server" "/static" ];
+    Cmd = [ "/bin/server" "/" ];
   };
 }

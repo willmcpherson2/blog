@@ -1,0 +1,43 @@
+* Hello World
+
+This is version 3 of this website...
+
+Here's what I'm using.
+
+** Nixture
+
+[[https://github.com/willmcpherson2/nixture][github.com/willmcpherson2/nixture]]
+
+/Nixture/ is my small Nix library for static site generation. It's just Jinja2 + Org-mode + GHC + GHCJS.
+
+The philosophy is: build a website with HTML/CSS/JavaScript and add simple abstractions on top. If you're writing lots of HTML, use templating. If you're writing longform content, use Org-mode. If you need better CSS, use a framework like Tailwind. If you need a better JavaScript, use a compiler like GHCJS.
+
+Big intrusive abstractions often introduce a lot of friction, because the web is a high-level API. I find myself in agreement with [[https://docs.google.com/document/d/1peUSMsvFGvqD5yKh3GprskLC3KVdAlLGOsK6gFoEOD0/edit?usp=sharing&resourcekey=0-bPajpoo9IBZpG__-uCBE6w][Towards a modern Web stack]] by Ian Hickson, which echoes the age-old retrospective "this should've been a library".
+
+** Jinja
+
+[[https://jinja.palletsprojects.com/en/2.11.x/templates/][jinja.palletsprojects.com]]
+
+/Jinja/ adds some pretty obvious extensions to HTML such as ~include~, ~macro~ and ~extends~. Usually it's used at run-time by a Python server, but I'm using it at compile-time.
+
+** Org-mode
+
+[[https://orgmode.org/][orgmode.org]]
+
+[[https://pandoc.org/][pandoc.org]]
+
+/Org-mode/ is a steroidal markup language that is much better than HTML for writing blog posts. It's also an Emacs mode. Even better, Pandoc supports it, so you can compile it to HTML and then ~include~ it in your Jinja template.
+
+** Haskell
+
+[[https://www.haskell.org/ghc/][haskell.org/ghc]]
+
+[[https://github.com/ghcjs/ghcjs][github.com/ghcjs/ghcjs]]
+
+[[https://github.com/reflex-frp/reflex-platform][github.com/reflex-frp/reflex-platform]]
+
+/Haskell/ is my favourite language, so I've used it for the server and some of the frontend code. I don't mind HTML and CSS, but I really prefer to avoid JavaScript whenever possible.
+
+At the time of writing this post, GHC 9.6 just landed with rudimentary JavaScript and WebAssembly support. But libraries will take some time to catch on, so I'm using the GHC fork /GHCJS/.
+
+I'm getting GHC and GHCJS via /Reflex Platform/, which is a Nix library for the functional reactive programming library /Reflex/, which is quite good.

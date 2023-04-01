@@ -1,13 +1,9 @@
 # [willmcpherson2.com](http://willmcpherson2.com/)
 
 ```sh
-# dev build
-nix-shell -A shells.ghc --run server-reload
-nix-shell -A shells.ghcjs --run client-reload
-
 # release build
 nix-build
-./result/bin/server result/static/
+./result/bin/server result/
 
 # docker image
 nix-build docker.nix
@@ -19,7 +15,4 @@ heroku login
 heroku container:login
 docker push registry.heroku.com/willmcpherson2/web:latest
 heroku container:release web -a willmcpherson2
-
-# format
-nix-shell -A shells.ghcjs --run format
 ```

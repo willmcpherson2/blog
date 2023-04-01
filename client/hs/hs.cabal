@@ -1,0 +1,58 @@
+cabal-version: 2.4
+name: hs
+version: 0.1.0.0
+
+flag dev
+  default: False
+
+common common
+  default-language: Haskell2010
+  default-extensions:
+    OverloadedStrings
+    , LambdaCase
+    , RankNTypes
+    , NamedFieldPuns
+  ghc-options:
+    -Weverything
+    -Wno-implicit-prelude
+    -Wno-name-shadowing
+    -Wno-unsafe
+    -Wno-missing-import-lists
+    -Wno-unused-do-bind
+    -Wno-missed-specialisations
+    -Wno-all-missed-specialisations
+    -Wno-monomorphism-restriction
+    -Wno-missing-local-signatures
+    -Wno-safe
+
+common exe
+  import: common
+  if !flag(dev) && impl(ghcjs)
+    ghc-options:
+      -dedupe
+      -O2
+      -fsimpl-tick-factor=1000
+  else
+    ghc-options:
+      -O0
+
+executable two-hand-demo
+  import: exe
+  hs-source-dirs: two-hand-demo
+  main-is: Main.hs
+  build-depends:
+    base
+    , reflex-dom
+    , text
+    , two-hand
+
+executable particle-life
+  import: exe
+  hs-source-dirs: particle-life
+  main-is: Main.hs
+  build-depends:
+    base
+    , jsaddle
+    , jsaddle-dom
+    , reflex-dom
+    , text

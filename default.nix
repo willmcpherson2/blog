@@ -1,27 +1,26 @@
 let
-  shell = import ./shell.nix;
-  inherit (import <nixpkgs> { }) stdenv closurecompiler;
-  server = shell.ghc.server;
-  client = shell.ghcjs.client;
+  inherit (import <nixpkgs> { }) symlinkJoin;
+  inherit
+    (import
+      (builtins.fetchTarball
+        "https://github.com/willmcpherson2/nixture/archive/aa5a7df9d51f55823ccba0755ff3026598e1f905.tar.gz"))
+    ghc ghcjs optimiseHaskellJs compileNixture;
+  parss =
+    ghcjs.callCabal2nix
+      "parss"
+      (builtins.fetchTarball "https://github.com/willmcpherson2/parss/archive/4673e197e5036e370e53fffe962fcea72c28af62.tar.gz")
+      { };
+  two-hand =
+    ghcjs.callCabal2nix
+      "two-hand"
+      (builtins.fetchTarball "https://github.com/willmcpherson2/two-hand/archive/01f00f61bc5a7c4774f22a57dbc796867677ef5f.tar.gz")
+      { inherit parss; };
 in
-stdenv.mkDerivation {
-  name = "willmcpherson2";
-  src = ./www;
-  dontUnpack = true;
-  buildInputs = [ closurecompiler ];
-  installPhase = ''
-    mkdir -p $out/{bin,static}
-    cp ${server}/bin/* $out/bin
-    cp -r $src/* $out/static
-    for dir in $(find ${client} -name "*.jsexe"); do
-      filename="$(basename "$dir" .jsexe).js"
-      closure-compiler \
-        --warning_level QUIET \
-        --compilation_level ADVANCED_OPTIMIZATIONS \
-        --jscomp_off=checkVars \
-        --externs=$dir/all.js.externs \
-        $dir/all.js > $out/static/$filename &
-    done
-    wait
-  '';
+symlinkJoin {
+  name = "willmcpherson2.com";
+  paths = [
+    (ghc.callCabal2nix "server" ./server { })
+    (optimiseHaskellJs (ghcjs.callCabal2nix "hs" ./client/hs { inherit two-hand; }))
+    (compileNixture ./client)
+  ];
 }

@@ -1,0 +1,12 @@
+{% macro preview(name, title, date) %}
+  <div class="preview">
+    <a href="/posts/{{ name }}">{{ title }}</a>
+    <date>{{ date }}</date>
+  </div>
+{% endmacro %}
+
+{% extends "base.html.j2" %}
+{% block title %}Posts{% endblock %}
+{% block content %}
+  {{ preview("hello-world", "Hello World", "2023-04-04") }}
+{% endblock %}
