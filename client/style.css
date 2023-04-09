@@ -121,3 +121,10 @@ code.sourceCode {
 .preview {
   margin-bottom: 1em;
 }
+
+/* Pandoc syntax highlighting classes */
+.co, .al { color: var(--overlay1); } /* comments */
+.kw, .cf { color: var(--blue); } /* keywords */
+.st, .dv { color: var(--green); } /* literals */
+.op { color: var(--teal); } /* operators */
+.dt { color: var(--red); } /* types */
