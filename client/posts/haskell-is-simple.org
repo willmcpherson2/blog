@@ -10,9 +10,11 @@ Using just functions and algebraic data types, let's see what we can implement.
 
 *** Booleans
 
-Sum types are mysteriously neglected in many languages. This has resulted in all sorts of extra primitives. The most painfully obvious being the boolean.
+Sum types are mysteriously neglected in many languages. This has resulted in all sorts of superfluous primitives. The most painfully obvious being the boolean.
 
 #+BEGIN_SRC haskell
+import Prelude hiding (Bool (..), not)
+
 data Bool = False | True
   deriving (Show)
 
@@ -20,6 +22,9 @@ not :: Bool -> Bool
 not x = case x of
   True -> False
   False -> True
+
+main :: IO ()
+main = print $ not True
 #+END_SRC
 
 *** Numbers [fn:numbers]
@@ -72,16 +77,18 @@ Many languages either have built-in lists or pointer-juggling implementations of
 #+BEGIN_SRC haskell
 import Prelude hiding (map)
 
-data List a = Nil | Cons a (List a)
+data List a = Nil | a :> List a
   deriving (Show)
+
+infixr 5 :>
 
 map :: (a -> b) -> List a -> List b
 map f x = case x of
-  Cons x xs -> Cons (f x) (map f xs)
+  x :> xs -> f x :> map f xs
   Nil -> Nil
 
 main :: IO ()
-main = print $ map (+ 1) (Cons 1 (Cons 2 (Cons 3 Nil)))
+main = print $ map (+ 1) (1 :> 2 :> 3 :> Nil)
 #+END_SRC
 
 *** Mutation
@@ -89,9 +96,7 @@ main = print $ map (+ 1) (Cons 1 (Cons 2 (Cons 3 Nil)))
 Mutation can be implemented by returning the "mutated" value. Importantly, these operations can be composed, so this scales up.
 
 #+BEGIN_SRC haskell
-import Prelude hiding (Left, Right)
-
-data Direction = Up | Down | Left | Right
+data Direction = U | D | L | R
 
 type Route = [Direction]
 
@@ -99,47 +104,45 @@ type Position = (Int, Int)
 
 move :: Direction -> Position -> Position
 move direction (x, y) = case direction of
-  Up -> (x, y + 1)
-  Down -> (x, y - 1)
-  Left -> (x - 1, y)
-  Right -> (x + 1, y)
+  U -> (x, y + 1)
+  D -> (x, y - 1)
+  L -> (x - 1, y)
+  R -> (x + 1, y)
 
 travel :: Position -> Route -> Position
 travel = foldr move
 
 main :: IO ()
-main = print $ travel (0, 0) [Up, Up, Right, Right]
+main = print $ travel (0, 0) [U, U, R, R]
 #+END_SRC
 
 *** References
 
 References can be implemented with lazy values.
 
-In this example, each ~Cell~ has a number and a reference to ~Cells~ which also has a number. The ~updateCell~ function updates a cell's number by adding the parent's number to it.
+In this example, each ~Cell~ has a number and a reference to the ~World~ which also has a number. The ~updateCell~ function updates a cell's number by adding the world number.
 
-Notice how ~cells = Cells 100 [Cell 1 cells, Cell 2 cells]~ creates circular references.
+Notice how ~world = World 100 [Cell 1 world, Cell 2 world]~ naturally creates circular references.
 
 #+BEGIN_SRC haskell
-data Cells = Cells Int [Cell]
-  deriving (Show)
+data World = World {worldNum :: Int, cells :: [Cell]}
 
-data Cell = Cell Int Cells
-  deriving (Show)
+data Cell = Cell {cellNum :: Int, world :: World}
+
+updateWorld :: World -> World
+updateWorld world = world {cells = map updateCell (cells world)}
 
 updateCell :: Cell -> Cell
-updateCell (Cell x (Cells y cells)) = Cell (x + y) (Cells y cells)
+updateCell cell = cell {cellNum = cellNum cell + worldNum (world cell)}
 
-updateCells :: Cells -> Cells
-updateCells (Cells y cells) = Cells y (map updateCell cells)
-
-getCells :: Cells -> [Int]
-getCells (Cells _ cells) = map (\(Cell x _) -> x) cells
+getCellNums :: World -> [Int]
+getCellNums world = map cellNum (cells world)
 
 main :: IO ()
 main =
-  let cells = Cells 100 [Cell 1 cells, Cell 2 cells]
-      cells' = updateCells cells
-   in print $ getCells cells'
+  let world = World 100 [Cell 1 world, Cell 2 world]
+      world' = updateWorld world
+   in print $ getCellNums world'
 #+END_SRC
 
 *** Conditionals
@@ -156,7 +159,7 @@ main :: IO ()
 main = print $ cond (2 > 1) "math works" "math is broken"
 #+END_SRC
 
-This is even better than a regular ~if~ builtin because it's a function that can be partially applied, composed and passed around.
+This is even better than a regular ~if~ builtin because it's a function that can be partially applied, composed and passed around.[fn:bool]
 
 However, booleans and conditionals are not needed as much in Haskell since you can define your own sum types.
 
@@ -183,7 +186,7 @@ However, you would never use anything like this. Haskell offers much more powerf
 
 But did you know that you don't even need built-in algebraic data types? You can implement them with functions.
 
-Here's a sum type:
+Here's a sum type and a product type:
 
 #+BEGIN_SRC haskell
 {-# LANGUAGE RankNTypes #-}
@@ -193,35 +196,10 @@ import Prelude hiding (Bool, not)
 newtype Bool = Bool (forall r. r -> r -> r)
 
 true :: Bool
-true = Bool $ \x y -> x
+true = Bool $ \x _ -> x
 
 false :: Bool
-false = Bool $ \x y -> y
-
-instance Show Bool where
-  show (Bool x) = x "true" "false"
-
-not :: Bool -> Bool
-not (Bool x) = x false true
-
-main :: IO ()
-main = print $ not true
-#+END_SRC
-
-And a product type:
-
-#+BEGIN_SRC haskell
-{-# LANGUAGE RankNTypes #-}
-
-import Prelude hiding (Bool, not)
-
-newtype Bool = Bool (forall r. r -> r -> r)
-
-true :: Bool
-true = Bool $ \x y -> x
-
-false :: Bool
-false = Bool $ \x y -> y
+false = Bool $ \_ y -> y
 
 instance Show Bool where
   show (Bool x) = x "true" "false"
@@ -238,7 +216,7 @@ instance (Show a, Show b) => Show (Pair a b) where
   show (Pair p) = p $ \x y -> "pair " <> show x <> " " <> show y
 
 fst :: Pair a b -> a
-fst (Pair p) = p $ \x y -> x
+fst (Pair p) = p $ \x _ -> x
 
 main :: IO ()
 main = print $ pair true (not true)
@@ -248,7 +226,9 @@ This hopefully makes it more clear how constructors and case expressions are fun
 
 To me, this is what "functional programming" means -- programming with functions, even if they are hidden behind syntactic sugar.
 
-[fn:numbers] This is the least practical of the examples, due to both performance issues and syntactic load. This is more for demonstrational purposes. However, I believe with the right compiler optimisations and metaprogramming features, a language could automatically and non-magically compile the canonical ~Nat~ definition to efficient machine code. Agda achieves this with [[https://agda.readthedocs.io/en/latest/language/built-ins.html#natural-numbers][pragmas]].
+[fn:numbers] This is the least practical of the examples, due to both performance issues and syntactic load. This is more for demonstrational purposes. However, I believe with the right metaprogramming features and compiler optimisations, it could be possible to implement ergonomic and efficient integers outside the core language. Agda achieves this somewhat with [[https://agda.readthedocs.io/en/latest/language/built-ins.html#natural-numbers][pragmas]].
+
+[fn:bool] Check out [[https://hackage.haskell.org/package/base-4.18.0.0/docs/Data-Bool.html#v:bool][~bool~ from ~Data.Bool~]].
 
 [fn:rank-n-types] For these examples I enable [[https://downloads.haskell.org/ghc/latest/docs/users_guide/exts/rank_polymorphism.html][~RankNTypes~]] which is enabled by default in [[https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/control.html][GHC2021]].
 
