@@ -44,7 +44,7 @@ n + m = case n of
 
 zero, one, two :: Nat
 zero = Z
-one = S Z
+one = S zero
 two = S one
 
 main :: IO ()
@@ -177,7 +177,7 @@ for n increment continue x body =
     else x
 
 main :: IO ()
-main = print $ for 0 (+ 1) (< 10) [] $ \xs -> length xs : xs
+main = print $ for 0 (+ 1) (< 10) [1, 1] $ \xs@(x : y : _) -> (x + y) : xs
 #+END_SRC
 
 However, you would never use anything like this. Haskell offers much more powerful higher-order recursive functions such as ~map~, ~foldr~, ~iterate~ and countless others.
@@ -226,7 +226,7 @@ This hopefully makes it more clear how constructors and case expressions are fun
 
 To me, this is what "functional programming" means -- programming with functions, even if they are hidden behind syntactic sugar.
 
-[fn:numbers] This is the least practical of the examples, due to both performance issues and syntactic load. This is more for demonstrational purposes. However, I believe with the right metaprogramming features and compiler optimisations, it could be possible to implement ergonomic and efficient integers outside the core language. Agda achieves this somewhat with [[https://agda.readthedocs.io/en/latest/language/built-ins.html#natural-numbers][pragmas]].
+[fn:numbers] This is the least practical of the examples, due to both performance issues and syntactic load. This is more for demonstrational purposes. However, I believe with the right metaprogramming features and compiler optimisations, it could be possible to implement ergonomic and efficient integers as a library. Agda achieves this somewhat with [[https://agda.readthedocs.io/en/latest/language/built-ins.html#natural-numbers][pragmas]].
 
 [fn:bool] Check out [[https://hackage.haskell.org/package/base-4.18.0.0/docs/Data-Bool.html#v:bool][~bool~ from ~Data.Bool~]].
 
