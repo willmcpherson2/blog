@@ -27,6 +27,10 @@ main :: IO ()
 main = print $ not True
 #+END_SRC
 
+#+BEGIN_SRC haskell
+False
+#+END_SRC
+
 *** Numbers [fn:numbers]
 
 Natural numbers (unsigned integers) are just an inductive sum type.
@@ -51,6 +55,10 @@ main :: IO ()
 main = print $ two + two
 #+END_SRC
 
+#+BEGIN_SRC haskell
+S (S (S (S Z)))
+#+END_SRC
+
 *** Null
 
 A lack of sum types leads many languages to introduce ~null~.
@@ -68,6 +76,10 @@ map f x = case x of
 
 main :: IO ()
 main = print $ map (+ 1) (Just 1)
+#+END_SRC
+
+#+BEGIN_SRC haskell
+Just 2
 #+END_SRC
 
 *** Lists
@@ -89,6 +101,10 @@ map f x = case x of
 
 main :: IO ()
 main = print $ map (+ 1) (1 :> 2 :> 3 :> Nil)
+#+END_SRC
+
+#+BEGIN_SRC haskell
+2 :> (3 :> (4 :> Nil))
 #+END_SRC
 
 *** Mutation
@@ -114,6 +130,10 @@ travel = foldr move
 
 main :: IO ()
 main = print $ travel (0, 0) [U, U, R, R]
+#+END_SRC
+
+#+BEGIN_SRC haskell
+(2,2)
 #+END_SRC
 
 *** References
@@ -145,6 +165,10 @@ main =
    in print $ getCellNums world'
 #+END_SRC
 
+#+BEGIN_SRC haskell
+[101,102]
+#+END_SRC
+
 *** Conditionals
 
 Conditionals can be implemented by combining sum types and lazy evaluation.
@@ -157,6 +181,10 @@ cond x a b = case x of
 
 main :: IO ()
 main = print $ cond (2 > 1) "math works" "math is broken"
+#+END_SRC
+
+#+BEGIN_SRC haskell
+"math works"
 #+END_SRC
 
 This is even better than a regular ~if~ builtin because it's a function that can be partially applied, composed and passed around.[fn:bool]
@@ -178,6 +206,10 @@ for n increment continue x body =
 
 main :: IO ()
 main = print $ for 0 (+ 1) (< 10) [1, 1] $ \xs@(x : y : _) -> (x + y) : xs
+#+END_SRC
+
+#+BEGIN_SRC haskell
+[144,89,55,34,21,13,8,5,3,2,1,1]
 #+END_SRC
 
 However, you would never use anything like this. Haskell offers much more powerful higher-order recursive functions such as ~map~, ~foldr~, ~iterate~ and countless others.
@@ -220,6 +252,10 @@ fst (Pair p) = p $ \x _ -> x
 
 main :: IO ()
 main = print $ pair true (not true)
+#+END_SRC
+
+#+BEGIN_SRC haskell
+pair true false
 #+END_SRC
 
 This hopefully makes it more clear how constructors and case expressions are functions and applications at heart.
