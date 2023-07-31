@@ -1,5 +1,0 @@
-* The Two Hand Language
-
-[[https://github.com/willmcpherson2/two-hand][github.com/willmcpherson2/two-hand]]
-
-This is my entry for [[https://github.com/langjam/jam0004][langjam #4]]
