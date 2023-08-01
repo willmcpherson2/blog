@@ -1,15 +1,15 @@
+{ pkgs ? import <nixpkgs> { } }:
 let
-  inherit (import <nixpkgs> { }) symlinkJoin;
-  inherit
+  nixture =
     (import
       (builtins.fetchTarball
-        "https://github.com/willmcpherson2/nixture/archive/fd8d95467564540b2d766fdc94d2340d11568a68.tar.gz"))
-    ghc compileNixture;
+        "https://github.com/willmcpherson2/nixture/archive/e77d4ef8afd94fe0acddf689fde2d3d59f3b612a.tar.gz")
+      { });
 in
-symlinkJoin {
+pkgs.symlinkJoin {
   name = "willmcpherson2.com";
   paths = [
-    (ghc.callCabal2nix "server" ./server { })
-    (compileNixture ./client)
+    (nixture.ghc.callCabal2nix "server" ./server { })
+    (nixture.compileNixture ./client)
   ];
 }
