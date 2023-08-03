@@ -2,5 +2,5 @@
 
 ```sh
 nix-build
-./result/bin/server result/
+./result/bin/server result/static/
 ```
