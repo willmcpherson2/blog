@@ -43,7 +43,7 @@ app dir request respond = do
 
 route :: String -> [String] -> IO Response
 route dir = \case
-  [] -> redirect "posts"
+  [] -> routeFile dir "/index.html" status200
   path -> routeFile dir (intercalate "/" path) status200
 
 routeFile :: FilePath -> FilePath -> Status -> IO Response
@@ -70,11 +70,3 @@ routeFile dir file status = do
           path
           Nothing
     False -> routeFile dir "not-found" status404
-
-redirect :: ByteString -> IO Response
-redirect path =
-  pure $
-    responseLBS
-      status301
-      [(hContentType, "text/plain"), (hLocation, path)]
-      "Redirect"
