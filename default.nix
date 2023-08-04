@@ -7,7 +7,7 @@ let
       { });
 in
 pkgs.symlinkJoin {
-  name = "willmcpherson2.com";
+  name = "blog";
   paths = [
     (nixture.ghc.callCabal2nix "server" ./server { })
     (nixture.compileNixture ./client)
