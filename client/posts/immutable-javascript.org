@@ -1,4 +1,4 @@
-* Pure JavaScript or: How I Learned to Stop Worrying and Love Shallow Copies
+* Immutable JavaScript or: How I Learned to Stop Worrying and Love Shallow Copies
 
 Objects are the best and worst part of JavaScript.
 
@@ -60,9 +60,9 @@ What's wrong with this?
 
 [fn:copy] There are a few ways to copy JavaScript objects:
 
-1. Perform shallow copies via spread syntax ~{ ...player }~ and hope that you've prevented undesirable mutations
-2. ~JSON.parse(JSON.stringify(player))~, which is slow and relies on serialisation which prevents copying functions
-3. ~structuredClone(player)~, which is faster but also only works for serialisable objects
+- Perform shallow copies via spread syntax ~{ ...player }~ and hope that you've prevented undesirable mutations
+- ~JSON.parse(JSON.stringify(player))~, which is slow and relies on serialisation which prevents copying functions
+- ~structuredClone(player)~, which is faster but also only works for serialisable objects
 
 Obviously, JavaScript was just never built to support copying. Even if there was some easy way to copy objects, it's still up to the programmer to ensure that copies and mutations happen in the right places.
 
@@ -83,7 +83,7 @@ We've avoided /the worst/ by removing mutation. Objects are still references, bu
   const player2 = { ...player1, points: player1.points + 1 };
 #+end_src
 
-The depth of the copy makes no difference because the nested object will never be mutated. That is unless you use ~===~, which is a topic for another day.
+The depth of the copy makes no difference here because the nested object will never be mutated. That is unless you use ~===~, which is a topic for another day.
 
 Can we actually write JavaScript like this? I want to argue that it's possible in many cases. And with the right tools, it's actually much better than impure JavaScript.
 
@@ -109,10 +109,10 @@ As you'd expect, [[https://react.dev/][React]] works very well with immutable pr
 
 ** Show me the code
 
-I just published [[https://github.com/willmcpherson2/letscape][Letscape]] which is about 1,500 lines of TypeScript. It's a React application that doesn't use ~let~ or ~obj.x = y~ anywhere, and uses shallow copies everywhere.
+I just published [[https://github.com/willmcpherson2/letscape][Letscape]] which is about 1,500 lines of TypeScript. It's a React application that doesn't use ~let~ or ~obj.a = b~ anywhere, and uses shallow copies everywhere.
 
 ** Performance
 
-I haven't done any tests yet, but I would note that since we're mostly doing shallow copies, we're taking advantage of the fact that objects are references. Most of the time, we are transforming data by doing something like ~{ ...old, new }~, which isn't too expensive.
+I haven't done any testing, but I would note that since we're mostly doing shallow copies, we're taking advantage of the fact that objects are references. Most of the time, we're transforming data by doing something like ~{ ...old, new }~, which isn't too expensive.
 
 If JavaScript was pure from the start, engines and compilers would be able to take advantage of this. Unfortunately, in languages that allow mutation, you don't get any of the performance benefits when you opt out.
