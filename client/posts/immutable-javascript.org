@@ -48,7 +48,7 @@ For example:
   console.log(addPoint(player1)); // { points: 2 }
 
   // !?
-  console.log(player1); // { x: 2 }
+  console.log(player1); // { points: 2 }
 #+end_src
 
 What's wrong with this?
