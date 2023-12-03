@@ -4,7 +4,7 @@ Objects are the best and worst part of JavaScript.
 
 The best:
 
-1. Objects are general purpose and can be used in many different ways:
+1. Objects are general-purpose and can be used in many different ways:
    - Simple key-value stores ~{ alice: 1, bob: 2 }~
    - Arrays ~[1, 2]~
    - Algebraic data types ~{ type: "wizard", points: 1 }~
