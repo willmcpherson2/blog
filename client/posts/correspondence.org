@@ -1,0 +1,111 @@
+* Arithmetic-Boolean-Regex-Set-Type-Proof Correspondence
+
+|            | Sum                    | Product                 |
+| Arithmetic | ~a + b~ [fn:arith-sum] | ~a * b~ [fn:arith-prod] |
+| Boolean    | ~a || b~ [fn:bool-sum] | ~a && b~ [fn:bool-prod] |
+| Regex      | ~a|b~ [fn:regex-sum]   | ~ab~ [fn:regex-prod]    |
+| Set        | ~a ∪ b~ [fn:set-sum]   | ~a ∩ b~ [fn:set-prod]   |
+| Type       | ~a | b~ [fn:type-sum]  | ~a, b~ [fn:type-prod]   |
+| Proof      | ~a ∨ b~ [fn:proof-sum] | ~a ∧ b~ [fn:proof-prod] |
+
+[fn:arith-sum]
+#+begin_src typescript
+1 + 1 // 2
+1 + 0 // 1
+0 + 1 // 1
+0 + 0 // 0
+#+end_src
+
+[fn:arith-prod]
+#+begin_src typescript
+1 * 1 // 1
+1 * 0 // 0
+0 * 1 // 0
+0 * 0 // 0
+#+end_src
+
+[fn:bool-sum]
+#+begin_src typescript
+true || true   // true for either argument
+true || false  // true
+false || true  // true
+false || false // false
+#+end_src
+
+[fn:bool-prod]
+#+begin_src typescript
+true && true   // true
+true && false  // false
+false && true  // false
+false && false // false
+#+end_src
+
+[fn:regex-sum]
+#+begin_src typescript
+const regex = new RegExp(/[ab]|[ac]/);
+regex.test("a") // true for both character classes
+regex.test("b") // true
+regex.test("c") // true
+regex.test("d") // false
+#+end_src
+
+[fn:regex-prod]
+#+begin_src typescript
+const regex = new RegExp(/ab/);
+regex.test("ab") // true
+regex.test("a")  // false
+regex.test("b")  // false
+regex.test("c")  // false
+#+end_src
+
+[fn:set-sum]
+#+begin_src typescript
+const set = new Set(["a", "b"]).union(new Set(["a", "c"]))
+set.has("a") // true in both sets
+set.has("b") // true
+set.has("c") // true
+set.has("d") // false
+#+end_src
+
+[fn:set-prod]
+#+begin_src typescript
+const set = new Set(["a", "b"]).intersection(new Set(["a", "c"]))
+set.has("a") // true
+set.has("b") // false
+set.has("c") // false
+set.has("d") // false
+#+end_src
+
+[fn:type-sum]
+#+begin_src typescript
+type ABC = ("a" | "b") | ("a" | "c");
+const _: ABC = "a"; // compiles for both types
+const _: ABC = "b"; // compiles
+const _: ABC = "c"; // compiles
+const _: ABC = "d"; // error
+#+end_src
+
+[fn:type-prod]
+#+begin_src typescript
+type AB = ["a", "b"]
+const _: AB = ["a", "b"]; // compiles
+const _: AB = ["a"];      // error
+const _: AB = ["b"];      // error
+const _: AB = [];         // error
+#+end_src
+
+[fn:proof-sum]
+#+begin_src typescript
+const _: ("a" | "a") = "a";     // compiles for both types
+const _: ("a" | never) = "a";   // compiles
+const _: (never | "a") = "a";   // compiles
+const _: (never | never) = "a"; // error
+#+end_src
+
+[fn:proof-prod]
+#+begin_src typescript
+const _: ["a", "b"] = ["a", "b"];     // compiles
+const _: ["a", never] = ["a", "b"];   // error
+const _: [never, "b"] = ["a", "b"];   // error
+const _: [never, never] = ["a", "b"]; // error
+#+end_src

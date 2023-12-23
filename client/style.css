@@ -125,6 +125,12 @@ code.sourceCode {
   margin-bottom: 1em;
 }
 
+table, th, td {
+  border: 1px solid var(--overlay1);
+  border-collapse: collapse;
+  padding: 0.5ch;
+}
+
 /* Pandoc syntax highlighting classes */
 .co, .al { color: var(--overlay1); } /* comments */
 .kw, .cf { color: var(--blue); } /* keywords */
