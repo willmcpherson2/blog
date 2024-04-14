@@ -1,0 +1,17 @@
+#+TITLE: willmcpherson2
+
+* Stuff
+
+[[https://github.com/willmcpherson2][GitHub]]
+
+[[./music.org][Music]]
+
+[[http://letscape.willmcpherson2.com/][Letscape]]
+
+* Posts
+
+[[./posts/immutable-javascript.org][Immutable JavaScript]]
+
+[[./posts/haskell-is-simple.org][Haskell is simple]]
+
+[[./posts/hello-world.org][Hello World]]

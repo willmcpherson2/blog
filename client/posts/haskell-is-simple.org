@@ -1,14 +1,16 @@
-* Haskell is simple
+#+TITLE: Haskell is Simple
+
+{{{date(2023-04-08)}}}
 
 Haskell is a large language -- it has a complex syntax, an expressive type system and a long list of extensions. But I would argue that it's far simpler than almost all other popular programming languages.
 
-** Primitive Power
+* Primitive Power
 
 A good definition of simplicity is /how much you get out of the primitives/. If there are too many primitives, the language becomes too complex. If the primitives don't provide enough power, the code written in the language becomes too complex.
 
 Using just functions and algebraic data types, let's see what we can implement.
 
-*** Booleans
+* Booleans
 
 Sum types are mysteriously neglected in many languages. This has resulted in all sorts of superfluous primitives. The most painfully obvious being the boolean.
 
@@ -31,7 +33,7 @@ main = print $ not True
 False
 #+END_SRC
 
-*** Numbers [fn:numbers]
+* Numbers [fn:numbers]
 
 Natural numbers (unsigned integers) are just an inductive sum type.
 
@@ -59,7 +61,7 @@ main = print $ two + two
 S (S (S (S Z)))
 #+END_SRC
 
-*** Null
+* Null
 
 A lack of sum types leads many languages to introduce ~null~.
 
@@ -82,7 +84,7 @@ main = print $ map (+ 1) (Just 1)
 Just 2
 #+END_SRC
 
-*** Lists
+* Lists
 
 Many languages either have built-in lists or pointer-juggling implementations of lists. In Haskell, a list is a simple recursive data type.
 
@@ -107,7 +109,7 @@ main = print $ map (+ 1) (1 :> 2 :> 3 :> Nil)
 2 :> (3 :> (4 :> Nil))
 #+END_SRC
 
-*** Mutation
+* Mutation
 
 Mutation can be implemented by returning the "mutated" value. Importantly, these operations can be composed, so this scales up.
 
@@ -136,7 +138,7 @@ main = print $ travel (0, 0) [U, U, R, R]
 (2,2)
 #+END_SRC
 
-*** References
+* References
 
 References can be implemented with lazy values.
 
@@ -169,7 +171,7 @@ main =
 [101,102]
 #+END_SRC
 
-*** Conditionals
+* Conditionals
 
 Conditionals can be implemented by combining sum types and lazy evaluation.
 
@@ -191,7 +193,7 @@ This is even better than a regular ~if~ builtin because it's a function that can
 
 However, booleans and conditionals are not needed as much in Haskell since you can define your own sum types.
 
-*** Loops
+* Loops
 
 Loops can be implemented by combining conditionals and recursion.
 
@@ -214,7 +216,7 @@ main = print $ for 0 (+ 1) (< 10) [1, 1] $ \xs@(x : y : _) -> (x + y) : xs
 
 However, you would never use anything like this. Haskell offers much more powerful higher-order recursive functions such as ~map~, ~foldr~, ~iterate~ and countless others.
 
-** Functional Programming [fn:rank-n-types] [fn:show]
+* Functional Programming [fn:rank-n-types] [fn:show]
 
 But did you know that you don't even need built-in algebraic data types? You can implement them with functions.
 

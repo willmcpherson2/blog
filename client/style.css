@@ -91,38 +91,27 @@ a:hover {
   color: var(--lavender);
 }
 
-code {
+h1 {
+  text-align: center;
+}
+
+.date {
+  text-align: center;
+}
+
+code, .src {
   font-family: monospace, monospace;
   background-color: var(--crust);
+}
+
+code {
   padding-left: 0.5ch;
   padding-right: 0.5ch;
 }
 
-code.sourceCode {
-  display: block;
+.src {
   padding: 1ch;
   overflow: scroll;
-}
-
-.codeInput {
-  box-sizing: border-box;
-  min-width: 100%;
-  max-width: 100%;
-  font-family: monospace, monospace;
-  color: var(--text);
-  background-color: var(--crust);
-}
-
-.buttonHome {
-  margin-bottom: 0;
-}
-
-.header {
-  margin-bottom: 2em;
-}
-
-.preview {
-  margin-bottom: 1em;
 }
 
 table, th, td {
@@ -130,10 +119,3 @@ table, th, td {
   border-collapse: collapse;
   padding: 0.5ch;
 }
-
-/* Pandoc syntax highlighting classes */
-.co, .al { color: var(--overlay1); } /* comments */
-.kw, .cf { color: var(--blue); } /* keywords */
-.st, .dv { color: var(--green); } /* literals */
-.op { color: var(--teal); } /* operators */
-.dt { color: var(--red); } /* types */
