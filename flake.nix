@@ -14,9 +14,9 @@
         build.sh ${./init.el} ${./client} $out/static
       '';
     in {
-      packages.x86_64-linux.default = pkgs.symlinkJoin {
-        name = "blog";
-        paths = [ server static ];
+      packages.x86_64-linux = {
+        default = static;
+        server = server;
       };
     };
 }
