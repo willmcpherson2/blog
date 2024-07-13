@@ -72,6 +72,7 @@
 body {
   background-color: var(--base);
   color: var(--text);
+  font-family: sans-serif;
   line-height: 1.5;
 }
 
